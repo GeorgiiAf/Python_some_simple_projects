@@ -14,7 +14,7 @@ class Tic_Tac_Toe():
     # ------------------------------------------------------------------
     # Initialization Functions:
     # ------------------------------------------------------------------
-    def __init__(self, mode = None):
+    def __init__(self, mode=None):
         self.mode = mode
         self.window = Tk()
         self.window.title('Tic-Tac-Toe')
@@ -24,15 +24,7 @@ class Tic_Tac_Toe():
         self.window.bind('<Button-1>', self.click)
 
         self.initialize_board()
-        self.player_X_turns = True
-        self.board_status = np.zeros(shape=(3, 3))
-
-        self.player_X_starts = True
-        self.reset_board = False
-        self.gameover = False
-        self.tie = False
-        self.X_wins = False
-        self.O_wins = False
+        self.reset_game()
 
         self.X_score = 0
         self.O_score = 0
@@ -44,9 +36,20 @@ class Tic_Tac_Toe():
     def choose_mode(self):
         root = Tk()
         root.title("Choose Mode")
-        Label(root, text="Choose Game Mode", font=("Helvetica", 14)).pack(pady=20)
-        Button(root, text="Player vs Player", command=lambda: self.start_game("player", root)).pack(pady=10)
-        Button(root, text="Player vs Computer", command=lambda: self.start_game("computer", root)).pack(pady=10)
+
+        window_width = 400
+        window_height = 300
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        position_top = int(screen_height / 2 - window_height / 2)
+        position_right = int(screen_width / 2 - window_width / 2)
+        root.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
+
+        Label(root, text="Choose Game Mode", font=("Helvetica", 18)).pack(pady=20)
+        Button(root, text="Player vs Player", font=("Helvetica", 14),
+               command=lambda: self.start_game("player", root)).pack(pady=10)
+        Button(root, text="Player vs Computer", font=("Helvetica", 14),
+               command=lambda: self.start_game("computer", root)).pack(pady=10)
         root.mainloop()
 
     def start_game(self, mode, root):
@@ -55,17 +58,18 @@ class Tic_Tac_Toe():
         self.reset_game()  # Сбросить игру
 
     def reset_game(self):
+        self.canvas.delete("all")
         self.initialize_board()
-        self.player_X_starts = True
-        self.player_X_turns = self.player_X_starts
+        self.player_X_turns = not getattr(self, 'player_X_turns', False)  # чередование начального игрока
         self.board_status = np.zeros(shape=(3, 3))
+        self.gameover = False
+        self.reset_board = False
+        self.tie = False
+        self.X_wins = False
+        self.O_wins = False
 
-
-
-
-
-
-
+        if self.mode == 'computer' and not self.player_X_turns:
+            self.computer_move()
 
     def initialize_board(self):
         for i in range(2):
@@ -75,10 +79,10 @@ class Tic_Tac_Toe():
             self.canvas.create_line(0, (i + 1) * size_of_board / 3, size_of_board, (i + 1) * size_of_board / 3)
 
     def play_again(self):
-        self.initialize_board()
-        self.player_X_starts = not self.player_X_starts
-        self.player_X_turns = self.player_X_starts
-        self.board_status = np.zeros(shape=(3, 3))
+        self.reset_game()
+
+        if self.mode == 'computer' and not self.player_X_turns:
+            self.computer_move()
 
     # ------------------------------------------------------------------
     # Drawing Functions:
@@ -156,7 +160,6 @@ class Tic_Tac_Toe():
             return True
 
     def is_winner(self, player):
-
         player = -1 if player == 'X' else 1
 
         # Three in a row
@@ -176,13 +179,8 @@ class Tic_Tac_Toe():
         return False
 
     def is_tie(self):
-
         r, c = np.where(self.board_status == 0)
-        tie = False
-        if len(r) == 0:
-            tie = True
-
-        return tie
+        return len(r) == 0
 
     def is_gameover(self):
         # Either someone wins or all grid occupied
@@ -193,20 +191,7 @@ class Tic_Tac_Toe():
         if not self.O_wins:
             self.tie = self.is_tie()
 
-        gameover = self.X_wins or self.O_wins or self.tie
-
-        if self.X_wins:
-            print('X wins')
-        if self.O_wins:
-            print('O wins')
-        if self.tie:
-            print('Its a tie')
-
-        return gameover
-
-
-
-
+        return self.X_wins or self.O_wins or self.tie
 
     def click(self, event):
         if self.gameover:
@@ -219,37 +204,35 @@ class Tic_Tac_Toe():
             if self.player_X_turns:
                 if not self.is_grid_occupied(logical_position):
                     self.draw_X(logical_position)
-                    self.board_status[logical_position[0]][logical_position[1]] = -1
+                    self.board_status[logical_position[0], logical_position[1]] = -1
                     self.player_X_turns = not self.player_X_turns
+                    if self.is_gameover():
+                        self.display_gameover()
+                    elif self.mode == 'computer' and not self.player_X_turns:
+                        self.computer_move()
             else:
-                if not self.is_grid_occupied(logical_position):
+                if self.mode == 'player' and not self.is_grid_occupied(logical_position):
                     self.draw_O(logical_position)
-                    self.board_status[logical_position[0]][logical_position[1]] = 1
+                    self.board_status[logical_position[0], logical_position[1]] = 1
                     self.player_X_turns = not self.player_X_turns
-
-            # Check if game is concluded
-            if self.is_gameover():
-                self.display_gameover()
-                # print('Done')
-        else:  # Play Again
-            self.canvas.delete("all")
+                    if self.is_gameover():
+                        self.display_gameover()
+        else:
             self.play_again()
             self.reset_board = False
 
     def computer_move(self):
-        empty_cells = list(zip(*np.where(self.board_status == 0)))
-        if empty_cells:
-            move = random.choice(empty_cells)
-            self.draw_O(move)
-            self.board_status[move[0]][move[1]] = 1
-            self.player_X_turns = not self.player_X_turns
-            if self.is_gameover():
-                self.display_gameover()
-
-
-
-
+        if not self.gameover:
+            empty_cells = list(zip(*np.where(self.board_status == 0)))
+            if empty_cells:
+                logical_position = random.choice(empty_cells)
+                self.draw_O(logical_position)
+                self.board_status[logical_position[0], logical_position[1]] = 1
+                self.player_X_turns = not self.player_X_turns
+                if self.is_gameover():
+                    self.display_gameover()
 
 
 game_instance = Tic_Tac_Toe()
 game_instance.choose_mode()
+game_instance.mainloop()
