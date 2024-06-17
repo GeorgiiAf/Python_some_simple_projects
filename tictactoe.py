@@ -22,17 +22,20 @@ class Tic_Tac_Toe:
         self.O_score = 0  # Счет игрока O
         self.tie_score = 0  # Счет ничьих
 
+        self.first_turn_X = True  # Переменная, определяющая, кто ходит первым (True - игрок, False - компьютер)
+        self.create_quit_button(self.window)  # Создаем кнопку "Выход"
         self.reset_game()  # Сбрасываем игру при инициализации
-        self.create_quit_button()
-
 
     def mainloop(self):
         self.window.mainloop()  # Запускаем основной цикл обработки событий
 
-    def create_quit_button(self):
-        self.quit_button = Button(self.window, text="Quit", command=self.window.quit, font=("Helvetica", 14))
-        self.quit_button.pack(side=BOTTOM, pady=10)
+    def create_quit_button(self, root):
+        quit_button = Button(root, text="Quit", command=self.quit_game, font=("Helvetica", 14))
+        quit_button.pack(side=BOTTOM, pady=10)
 
+    def quit_game(self):
+        self.window.destroy()  # Закрываем основное окно Tkinter
+        self.window.quit()
 
     def reset_game(self):
         self.canvas.delete("all")
@@ -44,19 +47,13 @@ class Tic_Tac_Toe:
         self.X_wins = False
         self.O_wins = False
 
-        if self.mode == 'computer':
-            # В режиме против компьютера, чередуем начального игрока
-            self.player_X_turns = not getattr(self, 'player_X_turns', False)
+        # Чередуем начального игрока при каждой новой игре
+        self.first_turn_X = not self.first_turn_X
 
-            if not self.player_X_turns:
-                # Если компьютер начинает, сразу делаем его ход
-                self.computer_move()
-        else:
-            # В режиме против игрока, чередуем ходы игроков
-            self.player_X_turns = not getattr(self, 'player_X_turns', False)
+        self.player_X_turns = self.first_turn_X
 
-        # Для режима против игрока, если компьютер начинает, делаем его первый ход
-        if self.mode == 'player' and not self.player_X_turns:
+        if self.mode == 'computer' and not self.first_turn_X:
+            # Если компьютер начинает, сразу делаем его ход
             self.computer_move()
 
     def initialize_board(self):
@@ -68,7 +65,7 @@ class Tic_Tac_Toe:
 
     def play_again(self):
         self.reset_game()
-        if self.mode == 'computer' and not self.player_X_turns:
+        if self.mode == 'computer' and not self.first_turn_X:
             self.window.after(500, self.computer_move)  # Задержка для более реалистичного хода компьютера
 
     def draw_O(self, logical_position):
@@ -117,7 +114,6 @@ class Tic_Tac_Toe:
         self.canvas.create_text(size_of_board / 2, 15 * size_of_board / 16, font="cmr 20 bold", fill="gray",
                                 text=score_text)
 
-
     def convert_logical_to_grid_position(self, logical_position):
         logical_position = np.array(logical_position, dtype=int)  # Преобразуем логическую позицию в целочисленный массив numpy
         return (size_of_board / 3) * logical_position + size_of_board / 6
@@ -157,6 +153,11 @@ class Tic_Tac_Toe:
     def click(self, event):
         if self.gameover:
             return
+
+
+        if event.widget != self.canvas:
+            return
+
 
         grid_position = [event.x, event.y]
         logical_position = self.convert_grid_to_logical_position(grid_position)
@@ -212,6 +213,8 @@ def main():
            command=lambda: start_game("player", root)).pack(pady=10)  # Кнопка для выбора режима "Игрок против Игрока"
     Button(root, text="Player vs Computer", font=("Helvetica", 14),
            command=lambda: start_game("computer", root)).pack(pady=10)  # Кнопка для выбора режима "Игрок против Компьютера"
+    quit_button = Button(root, text="Quit", command=root.quit, font=("Helvetica", 14))
+    quit_button.pack(side=BOTTOM, pady=10)  # Кнопка для выхода из игры
     root.mainloop()  # Запускаем основной цикл обработки событий для окна выбора режима
 
 def start_game(mode, root):
