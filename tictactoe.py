@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import *
 import numpy as np
 import random
-import csv
 import sys
-
+import sqlite3
+from datetime import datetime
 
 
 
@@ -15,11 +15,29 @@ symbol_X_color = '#EE4035'
 symbol_O_color = '#0492CF'
 Green_color = '#7BC043'
 
+
+
+def create_database():
+    conn = sqlite3.connect('game_log.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS game_log (
+                    match_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    player1_name TEXT,
+                    player2_name TEXT,
+                    start_time TEXT,
+                    end_time TEXT,
+                    result TEXT,
+                    player1_points INTEGER,
+                    player2_points INTEGER)''')
+    conn.commit()
+    conn.close()
+
 class Tic_Tac_Toe:
     def __init__(self, mode, player1_name, player2_name):
         self.mode = mode
         self.player1_name = player1_name
         self.player2_name = player2_name if mode == "player" else "Mr. G (PC)"
+        self.start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.window = tk.Tk()
         self.window.title('Tic-Tac-Toe')
         self.canvas = tk.Canvas(self.window, width=size_of_board, height=size_of_board)
@@ -46,7 +64,17 @@ class Tic_Tac_Toe:
         self.window.quit()
         sys.exit()
 
+    def log_result(self, player1_name, player2_name, start_time, end_time, result, player1_points, player2_points):
+        conn = sqlite3.connect('game_log.db')
+        c = conn.cursor()
+        c.execute('''INSERT INTO game_log (player1_name, player2_name, start_time, end_time, result, player1_points, player2_points)
+                     VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                  (player1_name, player2_name, start_time, end_time, result, player1_points, player2_points))
+        conn.commit()
+        conn.close()
+
     def reset_game(self):
+        self.start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.canvas.delete("all")
         self.initialize_board()
         self.board_status = np.zeros(shape=(3, 3))
@@ -91,35 +119,40 @@ class Tic_Tac_Toe:
         self.canvas.update()
 
     def display_gameover(self):
+        end_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if self.X_wins:
             self.X_score += 1
             text = f'Winner: {self.player1_name} (X)'
+            player1_points = 1
+            player2_points = 0
             color = symbol_X_color
         elif self.O_wins:
             self.O_score += 1
             text = f'Winner: {self.player2_name} (O)'
+            player1_points = 0
+            player2_points = 1
             color = symbol_O_color
         else:
             self.tie_score += 1
             text = 'It\'s a tie'
+            player1_points = 0
+            player2_points = 0
             color = 'gray'
-        self.log_result(text)
+        self.log_result(self.player1_name, self.player2_name, self.start_time, end_time, text, player1_points, player2_points)
         self.canvas.delete("all")
         self.canvas.create_text(size_of_board / 2, size_of_board / 3, font="cmr 60 bold", fill=color, text=text)
         score_text = 'Scores \n'
-        self.canvas.create_text(size_of_board / 2, 5 * size_of_board / 8, font="cmr 40 bold", fill=Green_color, text=score_text)
+        self.canvas.create_text(size_of_board / 2, 5 * size_of_board / 8, font="cmr 40 bold", fill=Green_color,
+                                text=score_text)
         score_text = f'{self.player1_name} (X) : ' + str(self.X_score) + '\n'
         score_text += f'{self.player2_name} (O): ' + str(self.O_score) + '\n'
         score_text += 'Tie                    : ' + str(self.tie_score)
-        self.canvas.create_text(size_of_board / 2, 3 * size_of_board / 4, font="cmr 30 bold", fill=Green_color, text=score_text)
+        self.canvas.create_text(size_of_board / 2, 3 * size_of_board / 4, font="cmr 30 bold", fill=Green_color,
+                                text=score_text)
         self.reset_board = True
         score_text = 'Click to play again \n'
-        self.canvas.create_text(size_of_board / 2, 15 * size_of_board / 16, font="cmr 20 bold", fill="gray", text=score_text)
-
-    def log_result(self, result):
-        with open('game_log.csv', 'a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([self.player1_name, self.player2_name, result])
+        self.canvas.create_text(size_of_board / 2, 15 * size_of_board / 16, font="cmr 20 bold", fill="gray",
+                                text=score_text)
 
     def convert_logical_to_grid_position(self, logical_position):
         logical_position = np.array(logical_position, dtype=int)
@@ -202,6 +235,7 @@ class Tic_Tac_Toe:
                     self.display_gameover()
 
 def main():
+    create_database()
     root = Tk()
     root.title("Choose Mode")
     window_width = 400
