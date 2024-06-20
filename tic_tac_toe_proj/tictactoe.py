@@ -4,6 +4,7 @@ import random, sys, sqlite3
 from datetime import datetime
 
 
+# Constants for sizes and colors
 
 size_of_board = 600
 symbol_size = (size_of_board / 3 - size_of_board / 8) / 2
@@ -14,7 +15,7 @@ Green_color = '#7BC043'
 
 
 
-def create_database():
+def create_database():      # Function to create the database if it does not exist
     conn = sqlite3.connect('game_log.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS game_log (
@@ -29,19 +30,31 @@ def create_database():
     conn.commit()
     conn.close()
 
-class Tic_Tac_Toe:
-    def __init__(self, mode, player1_name, player2_name):
+class Tic_Tac_Toe:      # Class to implement the game
+      # Initialization Functions:
+
+    def __init__(self, mode, difficulty, player1_name, player2_name):
         self.mode = mode
+        self.difficulty = difficulty
         self.player1_name = player1_name
         self.player2_name = player2_name if mode == "player" else "Mr. G (PC)"
         self.start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Setting up the game window using tkinter
+
         self.window = tk.Tk()
         self.window.title('Tic-Tac-Toe')
+        # Создаем холст для рисования
         self.canvas = tk.Canvas(self.window, width=size_of_board, height=size_of_board)
         self.canvas.pack(padx=50, pady=50)
         self.current_turn_label = tk.Label(self.window, text=f"Turn: {self.player1_name}", font=("Helvetica", 14))
         self.current_turn_label.pack()
+        # Input from user in form of clicks
+
         self.window.bind('<Button-1>', self.click)
+
+        # Initializing scores
+
         self.X_score = 0
         self.O_score = 0
         self.tie_score = 0
@@ -50,7 +63,7 @@ class Tic_Tac_Toe:
         self.reset_game()
 
     def mainloop(self):
-        self.window.mainloop()
+        self.window.mainloop()  #         Start the main loop for the game.
 
     def create_quit_button(self, root):
         quit_button = tk.Button(root, text="Quit", command=self.quit_game, font=("Helvetica", 14))
@@ -61,6 +74,9 @@ class Tic_Tac_Toe:
         self.window.quit()
         sys.exit()
 
+
+    # Logging the game result in the database
+    # id , time ,winner / tie , points
     def log_result(self, player1_name, player2_name, start_time, end_time, result, player1_points, player2_points):
         conn = sqlite3.connect('game_log.db')
         c = conn.cursor()
@@ -68,11 +84,16 @@ class Tic_Tac_Toe:
                      VALUES (?, ?, ?, ?, ?, ?, ?)''',
                   (player1_name, player2_name, start_time, end_time, result, player1_points, player2_points))
         conn.commit()
+        game_id = c.lastrowid
         conn.close()
+        print(f"Game ID: {game_id}")
 
+
+
+    # Reset the game to the initial state
     def reset_game(self):
         self.start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.canvas.delete("all")
+        self.canvas.delete("all")  # Очищаем холст
         self.initialize_board()
         self.board_status = np.zeros(shape=(3, 3))
         self.gameover = False
@@ -98,6 +119,9 @@ class Tic_Tac_Toe:
             self.window.after(500, self.computer_move)
 
     def draw_O(self, logical_position):
+        # logical_position = grid value on the board
+        # grid_position = actual pixel values of the center of the grid
+
         logical_position = np.array(logical_position)
         grid_position = self.convert_logical_to_grid_position(logical_position)
         self.canvas.create_oval(grid_position[0] - symbol_size, grid_position[1] - symbol_size,
@@ -115,7 +139,7 @@ class Tic_Tac_Toe:
                                 fill=symbol_X_color)
         self.canvas.update()
 
-    def display_gameover(self):
+    def display_gameover(self):     # Display game over results and log them in the database
         end_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if self.X_wins:
             self.X_score += 1
@@ -151,6 +175,9 @@ class Tic_Tac_Toe:
         self.canvas.create_text(size_of_board / 2, 15 * size_of_board / 16, font="cmr 20 bold", fill="gray",
                                 text=score_text)
 
+    # Logical Functions:
+    # The modules required to carry out game logic
+
     def convert_logical_to_grid_position(self, logical_position):
         logical_position = np.array(logical_position, dtype=int)
         return (size_of_board / 3) * logical_position + size_of_board / 6
@@ -164,11 +191,18 @@ class Tic_Tac_Toe:
 
     def is_winner(self, player):
         player = -1 if player == 'X' else 1
+        #         Check if the given player has won the game.
+
+
+        # Three in a row
         for i in range(3):
             if self.board_status[i][0] == self.board_status[i][1] == self.board_status[i][2] == player:
                 return True
             if self.board_status[0][i] == self.board_status[1][i] == self.board_status[2][i] == player:
                 return True
+
+        # Diagonals
+
         if self.board_status[0][0] == self.board_status[1][1] == self.board_status[2][2] == player:
             return True
         if self.board_status[0][2] == self.board_status[1][1] == self.board_status[2][0] == player:
@@ -188,6 +222,9 @@ class Tic_Tac_Toe:
         return self.X_wins or self.O_wins or self.tie
 
     def click(self, event):
+
+        #         Handle click events on the game canvas.
+
         if self.gameover:
             return
         if event.widget != self.canvas:
@@ -220,19 +257,106 @@ class Tic_Tac_Toe:
                 self.computer_move()
 
     def computer_move(self):
+        #            Perform the computer's move.
+
         if not self.gameover and not self.player_X_turns:
-            empty_cells = list(zip(*np.where(self.board_status == 0)))
-            if empty_cells:
-                logical_position = random.choice(empty_cells)
-                self.draw_O(logical_position)
-                self.board_status[logical_position[0], logical_position[1]] = 1
-                self.player_X_turns = not self.player_X_turns
-                self.current_turn_label.config(text=f"Turn: {self.player1_name}")
-                if self.is_gameover():
-                    self.display_gameover()
+            if self.difficulty == 'easy':
+                empty_cells = list(zip(*np.where(self.board_status == 0)))
+                if empty_cells:
+                    logical_position = random.choice(empty_cells)
+            else:
+                logical_position = self.find_best_move(self.board_status)
+
+            self.draw_O(logical_position)
+            self.board_status[logical_position[0], logical_position[1]] = 1
+            self.player_X_turns = not self.player_X_turns
+            self.current_turn_label.config(text=f"Turn: {self.player1_name}")
+            if self.is_gameover():
+                self.display_gameover()
+
+    def evaluate(self, board):
+
+        #           Evaluate the current state of the board.
+
+        for row in range(3):
+            if board[row][0] == board[row][1] == board[row][2]:
+                if board[row][0] == 1:
+                    return 10
+                elif board[row][0] == -1:
+                    return -10
+        for col in range(3):
+            if board[0][col] == board[1][col] == board[2][col]:
+                if board[0][col] == 1:
+                    return 10
+                elif board[0][col] == -1:
+                    return -10
+        if board[0][0] == board[1][1] == board[2][2]:
+            if board[0][0] == 1:
+                return 10
+            elif board[0][0] == -1:
+                return -10
+        if board[0][2] == board[1][1] == board[2][0]:
+            if board[0][2] == 1:
+                return 10
+            elif board[0][2] == -1:
+                return -10
+        return 0
+
+    def minimax(self, board, depth, is_maximizing):
+
+        #          Implement the minimax algorithm for AI move calculation.
+
+        score = self.evaluate(board)
+
+        if score == 10:
+            return score - depth
+        if score == -10:
+            return score + depth
+        if not any(0 in row for row in board):
+            return 0
+
+        if is_maximizing:
+            best = -1000
+            for i in range(3):
+                for j in range(3):
+                    if board[i][j] == 0:
+                        board[i][j] = 1
+                        best = max(best, self.minimax(board, depth + 1, not is_maximizing))
+                        board[i][j] = 0
+            return best
+        else:
+            best = 1000
+            for i in range(3):
+                for j in range(3):
+                    if board[i][j] == 0:
+                        board[i][j] = -1
+                        best = min(best, self.minimax(board, depth + 1, not is_maximizing))
+                        board[i][j] = 0
+            return best
+
+    def find_best_move(self, board):
+      #   Find the best move for the computer using minimax algorithm.
+
+
+        best_val = -1000
+        best_move = (-1, -1)
+
+        for i in range(3):
+            for j in range(3):
+                if board[i][j] == 0:
+                    board[i][j] = 1
+                    move_val = self.minimax(board, 0, False)
+                    board[i][j] = 0
+                    if move_val > best_val:
+                        best_move = (i, j)
+                        best_val = move_val
+        return best_move
+
+
+
 
 def main():
-    create_database()
+    create_database()    # Initialize the database
     root = Tk()
     root.title("Choose Mode")
     window_width = 400
@@ -243,13 +367,17 @@ def main():
     position_right = int(screen_width / 2 - window_width / 2)
     root.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
     Label(root, text="Choose Game Mode", font=("Helvetica", 18)).pack(pady=20)
-    Button(root, text="Player vs Player", font=("Helvetica", 14), command=lambda: enter_names("player", root)).pack(pady=10)
-    Button(root, text="Player vs Computer", font=("Helvetica", 14), command=lambda: enter_names("computer", root)).pack(pady=10)
+    Button(root, text="Player vs Player", font=("Helvetica", 14), command=lambda: enter_names("player", "easy", root)).pack(pady=10)
+    Button(root, text="Player vs Easy Computer", font=("Helvetica", 14), command=lambda: enter_names("computer", "easy", root)).pack(pady=10)
+    Button(root, text="Player vs Hard Computer", font=("Helvetica", 14), command=lambda: enter_names("computer", "hard", root)).pack(pady=10)
     quit_button = Button(root, text="Quit", command=root.quit, font=("Helvetica", 14))
     quit_button.pack(side=BOTTOM, pady=10)
     root.mainloop()
 
-def enter_names(mode, root):
+
+def enter_names(mode, difficulty, root):
+
+    #       Function to get player names and start the game.
     root.withdraw()
     name_window = Toplevel(root)
     name_window.title("Enter Names")
@@ -274,11 +402,13 @@ def enter_names(mode, root):
         player1_name = player1_entry.get()
         player2_name = player2_entry.get() if mode == "player" else None
         name_window.destroy()
-        game_instance = Tic_Tac_Toe(mode, player1_name, player2_name)
+        game_instance = Tic_Tac_Toe(mode, difficulty, player1_name, player2_name)
         game_instance.mainloop()
 
     tk.Button(name_window, text="Start Game", command=start_game, font=("Helvetica", 14)).pack(pady=20)
-    tk.Button(name_window, text="Back", command=lambda: back_to_mode_selection(name_window, root), font=("Helvetica", 14)).pack(pady=10)
+    tk.Button(name_window, text="Back", command=lambda: back_to_mode_selection(name_window, root),
+              font=("Helvetica", 14)).pack(pady=10)
+
 
 def back_to_mode_selection(name_window, root):
     name_window.destroy()
