@@ -1,9 +1,6 @@
-import tkinter as tk
+import tkinter as tk , numpy as np
 from tkinter import *
-import numpy as np
-import random
-import sys
-import sqlite3
+import random, sys, sqlite3
 from datetime import datetime
 
 
