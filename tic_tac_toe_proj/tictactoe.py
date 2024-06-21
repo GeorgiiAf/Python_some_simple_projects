@@ -44,7 +44,7 @@ class Tic_Tac_Toe:      # Class to implement the game
 
         self.window = tk.Tk()
         self.window.title('Tic-Tac-Toe')
-        # Создаем холст для рисования
+        #  creating canvas for drawing
         self.canvas = tk.Canvas(self.window, width=size_of_board, height=size_of_board)
         self.canvas.pack(padx=50, pady=50)
         self.current_turn_label = tk.Label(self.window, text=f"Turn: {self.player1_name}", font=("Helvetica", 14))
@@ -93,7 +93,7 @@ class Tic_Tac_Toe:      # Class to implement the game
     # Reset the game to the initial state
     def reset_game(self):
         self.start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        self.canvas.delete("all")  # Очищаем холст
+        self.canvas.delete("all")  # Clear the canvas
         self.initialize_board()
         self.board_status = np.zeros(shape=(3, 3))
         self.gameover = False
@@ -107,13 +107,13 @@ class Tic_Tac_Toe:      # Class to implement the game
         if self.mode == 'computer' and not self.first_turn_X:
             self.computer_move()
 
-    def initialize_board(self):
+    def initialize_board(self):     # Initialize the game board by drawing grid lines
         for i in range(2):
             self.canvas.create_line((i + 1) * size_of_board / 3, 0, (i + 1) * size_of_board / 3, size_of_board)
         for i in range(2):
             self.canvas.create_line(0, (i + 1) * size_of_board / 3, size_of_board, (i + 1) * size_of_board / 3)
 
-    def play_again(self):
+    def play_again(self):         # Start a new game after reset
         self.reset_game()
         if self.mode == 'computer' and not self.first_turn_X:
             self.window.after(500, self.computer_move)
@@ -179,14 +179,19 @@ class Tic_Tac_Toe:      # Class to implement the game
     # The modules required to carry out game logic
 
     def convert_logical_to_grid_position(self, logical_position):
+        # Convert logical position to pixel grid position
         logical_position = np.array(logical_position, dtype=int)
         return (size_of_board / 3) * logical_position + size_of_board / 6
 
     def convert_grid_to_logical_position(self, grid_position):
+        # Convert pixel grid position to logical position
+
         grid_position = np.array(grid_position)
         return np.array(grid_position // (size_of_board / 3), dtype=int)
 
     def is_grid_occupied(self, logical_position):
+        # Check if the grid position is occupied
+
         return self.board_status[logical_position[0]][logical_position[1]] != 0
 
     def is_winner(self, player):
@@ -276,67 +281,100 @@ class Tic_Tac_Toe:      # Class to implement the game
 
     def evaluate(self, board):
 
-        #           Evaluate the current state of the board.
+  #  Evaluate the current state of the board.
+  #  Parameters:
+   # - board: 2D list representing the current state of the game board.
 
+    #Returns:
+    #- Integer: Evaluation score based on the current state.
+     # - 10: If 'O' (computer) wins.
+     # - -10: If 'X' (player) wins.
+     # - 0: If the game is not won by any player yet.
+
+
+        # Check rows for a win
         for row in range(3):
             if board[row][0] == board[row][1] == board[row][2]:
-                if board[row][0] == 1:
+                if board[row][0] == 1:  # 'O' (computer) wins
                     return 10
-                elif board[row][0] == -1:
+                elif board[row][0] == -1:  # 'X' (player) wins
                     return -10
+
+        # Check columns for a win
         for col in range(3):
             if board[0][col] == board[1][col] == board[2][col]:
-                if board[0][col] == 1:
+                if board[0][col] == 1:  # 'O' (computer) wins
                     return 10
-                elif board[0][col] == -1:
+                elif board[0][col] == -1:  # 'X' (player) wins
                     return -10
+
+        # Check diagonals for a win
         if board[0][0] == board[1][1] == board[2][2]:
-            if board[0][0] == 1:
+            if board[0][0] == 1:  # 'O' (computer) wins
                 return 10
-            elif board[0][0] == -1:
+            elif board[0][0] == -1:  # 'X' (player) wins
                 return -10
         if board[0][2] == board[1][1] == board[2][0]:
-            if board[0][2] == 1:
+            if board[0][2] == 1:  # 'O' (computer) wins
                 return 10
-            elif board[0][2] == -1:
+            elif board[0][2] == -1:  # 'X' (player) wins
                 return -10
-        return 0
+
+        return 0  # No winner yet
 
     def minimax(self, board, depth, is_maximizing):
+        """
+    Implement the minimax algorithm for AI move calculation.
+    Parameters:
+    - board: 2D list representing the current state of the game board.
+    - depth: Integer representing the depth of recursion.
+    - is_maximizing: Boolean indicating if it's the maximizing player's turn (True)
+    or minimizing player's turn (False).
+    Returns:
+    - Integer: Best score for the current board state.
+        """
 
         #          Implement the minimax algorithm for AI move calculation.
 
-        score = self.evaluate(board)
+        score = self.evaluate(board)  # Evaluate the current board state
 
+        # Return score based on evaluation
         if score == 10:
             return score - depth
-        if score == -10:
+        elif score == -10:
             return score + depth
-        if not any(0 in row for row in board):
+        elif not any(0 in row for row in board):  # No empty cells left
             return 0
 
         if is_maximizing:
             best = -1000
             for i in range(3):
                 for j in range(3):
-                    if board[i][j] == 0:
-                        board[i][j] = 1
-                        best = max(best, self.minimax(board, depth + 1, not is_maximizing))
-                        board[i][j] = 0
+                    if board[i][j] == 0:  # Check if cell is empty
+                        board[i][j] = 1  # Make a move for the maximizing player (AI)
+                        best = max(best, self.minimax(board, depth + 1,
+                                                      not is_maximizing))  # Recursively evaluate and maximize
+                        board[i][j] = 0  # Undo the move
             return best
         else:
             best = 1000
             for i in range(3):
                 for j in range(3):
-                    if board[i][j] == 0:
-                        board[i][j] = -1
-                        best = min(best, self.minimax(board, depth + 1, not is_maximizing))
-                        board[i][j] = 0
+                    if board[i][j] == 0:  # Check if cell is empty
+                        board[i][j] = -1  # Make a move for the minimizing player (opponent)
+                        best = min(best, self.minimax(board, depth + 1,
+                                                      not is_maximizing))  # Recursively evaluate and minimize
+                        board[i][j] = 0  # Undo the move
             return best
 
     def find_best_move(self, board):
-      #   Find the best move for the computer using minimax algorithm.
+        #     Find the best move for the computer using minimax algorithm.
 
+        #    Parameters:
+        #    - board: 2D list representing the current state of the game board.
+
+        #     Returns:
+        #      Tuple (row, col) representing the best move coordinates.
 
         best_val = -1000
         best_move = (-1, -1)
