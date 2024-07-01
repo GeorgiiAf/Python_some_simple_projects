@@ -4,7 +4,7 @@ import pandas as pd
 import sqlite3
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import time
 
 def fetch_duunitori_jobs():
     url = 'https://duunitori.fi/tyopaikat/?haku=python'
@@ -16,74 +16,90 @@ def fetch_duunitori_jobs():
 
     job_listings = []
 
-    for job in soup.find_all('div', class_='job-box'):
-        title_elem = job.find('h2', class_='job-box-title')
-        company_elem = job.find('div', class_='job-box-employer')
-        location_elem = job.find('div', class_='job-box-location')
-        requirements_elem = job.find('div', class_='job-box-requirements')
-        date_elem = job.find('div', class_='job-box-date')
+    for job in soup.find_all('div', class_='grid grid--middle job-box job-box--lg'):
+        title_element = job.find('h3', class_='job-box__title')
+        link_element = job.find('a', class_='job-box__hover')
 
-        title = title_elem.text.strip() if title_elem else 'N/A'
-        company = company_elem.text.strip() if company_elem else 'N/A'
-        location = location_elem.text.strip() if location_elem else 'N/A'
-        requirements = requirements_elem.text.strip() if requirements_elem else 'N/A'
-        date_posted = date_elem.text.strip() if date_elem else 'N/A'
+        if not title_element or not link_element:
+            print("Missing title or link in job element.")
+            continue
 
-        job_listings.append({
-            'title': title,
-            'company': company,
-            'location': location,
-            'requirements': requirements,
-            'date_posted': date_posted
-        })
+        title = title_element.text.strip()
+        job_url = 'https://duunitori.fi' + link_element['href']
+
+        description = fetch_job_description(job_url, headers)
+
+        if 'python' in title.lower() or 'python' in description.lower():
+            job_listings.append({
+                'title': title,
+                'description': description,
+                'requirements': extract_requirements(description)
+            })
+
+        time.sleep(1)
 
     return job_listings
 
+def fetch_job_description(url, headers):
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    description_element = soup.find('div', class_='gtm-apply-clicks description description--jobentry')
 
-# Тестирование функции
+    if description_element:
+        return description_element.text.strip()
+    return "No description"
+
+def extract_requirements(description):
+    requirement_keywords = ['requirement', 'vaatimus',
+                            'must', 'should', 'necessary', 'need',
+                            'require', 'vaaditaan', 'tarvitaan', 'edellytetään',
+                            'experience','background']
+
+    lines = description.split('\n')
+    requirements = []
+
+    for line in lines:
+        if any(keyword in line.lower() for keyword in requirement_keywords):
+            requirements.append(line.strip())
+
+    if not requirements:
+        requirements = ["No specific requirements found"]
+
+    return requirements
+
+
 job_listings = fetch_duunitori_jobs()
 print(job_listings)
 
-# Преобразование данных в DataFrame для дальнейшего анализа
+
 df = pd.DataFrame(job_listings)
 
 
-def store_data_to_db(df):
-    # Создание подключения к базе данных
-    conn = sqlite3.connect('jobs.db')
-    c = conn.cursor()
 
-    # Создание таблицы (если она еще не существует)
-    c.execute('''CREATE TABLE IF NOT EXISTS job_listings
-                 (title TEXT, company TEXT, location TEXT, requirements TEXT, date_posted TEXT)''')
-
-    # Вставка данных в таблицу
-    df.to_sql('job_listings', conn, if_exists='append', index=False)
-
-    # Сохранение (commit) и закрытие подключения
-    conn.commit()
-    conn.close()
-
-store_data_to_db(df)
+df['requirements'] = df['requirements'].apply(lambda x: '; '.join(x))
 
 
-def analyze_data():
-    # Подключение к базе данных и загрузка данных в DataFrame
-    conn = sqlite3.connect('jobs.db')
-    df = pd.read_sql_query("SELECT * FROM job_listings", conn)
-    conn.close()
 
-    # Пример анализа: самые распространенные требования
-    requirements_series = df['requirements'].str.split(',').explode().str.strip()
-    common_requirements = requirements_series.value_counts().head(10)
+df.to_csv('job_listings.csv', index=False)
 
-    # Построение графика
-    plt.figure(figsize=(10, 6))
-    sns.barplot(x=common_requirements.values, y=common_requirements.index)
-    plt.xlabel('Frequency')
-    plt.ylabel('Requirement')
-    plt.title('Top 10 Common Requirements for Python Jobs in Finland')
-    plt.show()
+conn = sqlite3.connect('job_listings.db')
+df.to_sql('job_listings', conn, if_exists='replace', index=False)
+conn.close()
 
-analyze_data()
 
+
+
+
+"""
+
+
+requirements_series = df['requirements'].str.split('; ').explode().value_counts()
+top_requirements = requirements_series.head(10)
+
+plt.figure(figsize=(12, 8))
+sns.barplot(x=top_requirements.values, y=top_requirements.index, palette='viridis')
+plt.title('Top 10 Job Requirements')
+plt.xlabel('Frequency')
+plt.ylabel('Requirement')
+plt.show()
+"""
