@@ -50,7 +50,7 @@ def fetch_duunitori_jobs(max_pages=10):
     return job_listings
 
 def fetch_job_description(url, headers):
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers)
     soup = BeautifulSoup(response.content, 'html.parser')
     description_element = soup.find('div', class_='gtm-apply-clicks description description--jobentry')
     description = description_element.text.strip() if description_element else "No description"
@@ -64,7 +64,7 @@ def fetch_job_description(url, headers):
     info_element = soup.find_all('p', class_='header__info')
     published_date = "No published date"
     closing_date = "No closing date"
-    if info_element:
+    if info_element and len(info_element) > 1:
         date_texts = info_element[1].find_all('span')
         published_date = date_texts[0].text.strip() if len(date_texts) > 0 else "No published date"
         closing_date = date_texts[1].text.strip() if len(date_texts) > 1 else "No closing date"
@@ -72,21 +72,29 @@ def fetch_job_description(url, headers):
     return description, company, location, published_date, closing_date
 
 def extract_requirements(description):
+    requirement_keywords = [
+        'requirements', 'vaatimukset', 'kvalifikaatiot', 'skills', 'responsibilities', 'qualifications',
+        'edellytyksenä', 'must', 'should', 'necessary', 'need', 'required', 'vaaditaan', 'tarvitaan',
+        'experience', 'background', 'katsotaan eduksi', 'toivomme', 'edellytämme', 'kompetenssit'
+    ]
 
+    section_headers_pattern = re.compile(
+        r'(?i)(requirements|qualifications|skills|responsibilities|vaatimukset|kvalifikaatiot|edellytyksenä|toivomme)[:\n]')
+    bullet_points_pattern = re.compile(r'[\n•-]')
 
-    requirement_keywords = ['requirement', 'vaatimus', 'edellytyksenä','toivomme'
-                            'must', 'should', 'necessary', 'need',
-                            'require', 'vaaditaan', 'tarvitaan', 'edellytetään',
-                            'experience','background','katsotaan eduksi','Good to have','Must have']
+    sections = section_headers_pattern.split(description)
 
-    lines = description.split('\n')
     requirements = []
-
-
-
-    for line in lines:
-        if any(keyword in line.lower() for keyword in requirement_keywords):
-            requirements.append(line.strip())
+    for i, section in enumerate(sections):
+        if section.strip().lower() in [k.lower() for k in requirement_keywords]:
+            next_section = sections[i + 1] if i + 1 < len(sections) else ''
+            lines = bullet_points_pattern.split(next_section)
+            for line in lines:
+                line = line.strip()
+                if len(line) > 0 and not section_headers_pattern.match(line):
+                    requirements.append(line)
+                else:
+                    break
 
     if not requirements:
         requirements = ["No specific requirements found"]
@@ -94,14 +102,10 @@ def extract_requirements(description):
     return requirements
 
 # Тестирование функции
-job_listings = fetch_duunitori_jobs(max_pages=5)  # Увеличьте количество страниц, если нужно
+job_listings = fetch_duunitori_jobs(max_pages=3)
 
 # Преобразование данных в JSON для дальнейшего анализа
 with open('job_listings.json', 'w', encoding='utf-8') as f:
     json.dump(job_listings, f, ensure_ascii=False, indent=4)
 
 print(json.dumps(job_listings, ensure_ascii=False, indent=4))
-
-
-
-

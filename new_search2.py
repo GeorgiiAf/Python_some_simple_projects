@@ -4,6 +4,7 @@ import json
 import time
 import re
 
+
 def fetch_duunitori_jobs(max_pages=10):
     base_url = 'https://duunitori.fi/tyopaikat/?haku=python'
     headers = {
@@ -49,6 +50,7 @@ def fetch_duunitori_jobs(max_pages=10):
 
     return job_listings
 
+
 def fetch_job_description(url, headers):
     response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -64,44 +66,53 @@ def fetch_job_description(url, headers):
     info_element = soup.find_all('p', class_='header__info')
     published_date = "No published date"
     closing_date = "No closing date"
-    if info_element:
+    if info_element and len(info_element) > 1:
         date_texts = info_element[1].find_all('span')
         published_date = date_texts[0].text.strip() if len(date_texts) > 0 else "No published date"
         closing_date = date_texts[1].text.strip() if len(date_texts) > 1 else "No closing date"
 
     return description, company, location, published_date, closing_date
 
+
 def extract_requirements(description):
+    # Ключевые слова для поиска секций с требованиями
+    section_headers = [
+        r'requirements?', r'vaatimukset', r'qualifications?', r'skills?', r'responsibilities?',
+        r'edellytyksenä', r'toivomme', r'kompetenssit', r'must', r'should', r'necessary',
+        r'need', r'required', r'vaaditaan', r'tarvitaan', r'experience', r'background',
+        r'katsotaan eduksi', r'edellytämme'
+    ]
 
-
-    requirement_keywords = ['requirement', 'vaatimus', 'edellytyksenä','toivomme'
-                            'must', 'should', 'necessary', 'need',
-                            'require', 'vaaditaan', 'tarvitaan', 'edellytetään',
-                            'experience','background','katsotaan eduksi','Good to have','Must have']
-
-    lines = description.split('\n')
+    # Создаем паттерн для заголовков секций
+    headers_pattern = re.compile(r'|'.join(section_headers), re.IGNORECASE)
+    # Разделяем описание по заголовкам секций
+    sections = headers_pattern.split(description)
+    # Ищем заголовок секции и следующий текст
     requirements = []
 
-
-
-    for line in lines:
-        if any(keyword in line.lower() for keyword in requirement_keywords):
-            requirements.append(line.strip())
+    for i in range(1, len(sections), 2):
+        header = sections[i - 1]
+        if any(re.search(keyword, header, re.IGNORECASE) for keyword in section_headers):
+            content = sections[i]
+            # Ищем буллет-поинты
+            bullets = re.split(r'[\n•-]', content)
+            for bullet in bullets:
+                bullet = bullet.strip()
+                if bullet:
+                    requirements.append(bullet)
+            break
 
     if not requirements:
         requirements = ["No specific requirements found"]
 
     return requirements
 
+
 # Тестирование функции
-job_listings = fetch_duunitori_jobs(max_pages=5)  # Увеличьте количество страниц, если нужно
+job_listings = fetch_duunitori_jobs(max_pages=3)
 
 # Преобразование данных в JSON для дальнейшего анализа
 with open('job_listings.json', 'w', encoding='utf-8') as f:
     json.dump(job_listings, f, ensure_ascii=False, indent=4)
 
 print(json.dumps(job_listings, ensure_ascii=False, indent=4))
-
-
-
-
