@@ -1,19 +1,23 @@
 import asyncio
 import httpx
 from typing import List
+from additional_matrix import *
 
-
+# Function to fetch and process the matrix from a given URL
 async def get_matrix(url: str) -> List[int]:
     async with httpx.AsyncClient() as client:
         try:
+            # Fetch the matrix data from the URL
             response = await client.get(url)
-            response.raise_for_status()
+            response.raise_for_status()  # Raise an error for bad status codes
             matrix_text = response.text
             print(f"Response content:\n{matrix_text}")
 
+            # Parse the matrix data
             matrix = parse_matrix(matrix_text)
             print(f"Parsed matrix:\n{matrix}")
 
+            # Perform spiral traversal on the parsed matrix
             traversal_result = spiral_traversal(matrix)
             print(f"Spiral traversal result:\n{traversal_result}")
 
@@ -26,7 +30,7 @@ async def get_matrix(url: str) -> List[int]:
             print(f"An unexpected error occurred: {e}")
     return []
 
-
+# Function to perform spiral traversal on a matrix
 def spiral_traversal(matrix: List[List[int]]) -> List[int]:
     if not matrix:
         return []
@@ -60,18 +64,18 @@ def spiral_traversal(matrix: List[List[int]]) -> List[int]:
 
     return result
 
-
-
+# Function to parse a matrix from a string
 def parse_matrix(matrix_str: str) -> List[List[int]]:
     matrix = []
     lines = matrix_str.splitlines()
     for line in lines:
         if line.startswith('|'):
+            # Convert the row from string to a list of integers
             row = list(map(int, line.strip('| ').split('|')))
             matrix.append(row)
     return matrix
 
-
+# Function to test the get_matrix function
 async def test_get_matrix():
     SOURCE_URL = 'https://raw.githubusercontent.com/avito-tech/python-trainee-assignment/main/matrix.txt'
     TRAVERSAL = [
@@ -81,17 +85,31 @@ async def test_get_matrix():
         60, 100, 110, 70,
     ]
 
-    print(f"Testing matrix retrieval from {SOURCE_URL}...")
-    result = await get_matrix(SOURCE_URL)
-    print("Comparing traversal result with expected output...")
+    try:
+        print(f"Testing matrix retrieval from {SOURCE_URL}...")
+        result = await get_matrix(SOURCE_URL)
+        print("Comparing traversal result with expected output...")
 
-    # Compare each element in result and TRAVERSAL
-    for i in range(len(result)):
-        print(f"Index {i}: Expected {TRAVERSAL[i]}, Got {result[i]}")
-        assert result[i] == TRAVERSAL[i]
+        # Compare each element in result and TRAVERSAL
+        for i in range(len(result)):
+            print(f"Index {i}: Expected {TRAVERSAL[i]}, Got {result[i]}")
+            assert result[i] == TRAVERSAL[i]
 
-    print("Test passed successfully!")
+        print("Test passed successfully!")
 
+        # Test additional matrices
+        print("Testing additional matrices...")
+
+        for i, (matrix, expected_traversal) in enumerate(test_matrices):
+            result = spiral_traversal(matrix)
+            print(f"Test matrix {i+1} result:\n{result}")
+            assert result == expected_traversal, f"Test matrix {i+1} failed!"
+
+        print("Additional tests passed successfully!")
+    except AssertionError as e:
+        print(f"Assertion error: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred during testing: {e}")
 
 if __name__ == "__main__":
     asyncio.run(test_get_matrix())
