@@ -3,7 +3,6 @@ from tkinter import *
 import random, sys, sqlite3
 from datetime import datetime
 
-
 # Constants for sizes and colors
 
 size_of_board = 600

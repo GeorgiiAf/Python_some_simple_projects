@@ -43,8 +43,7 @@ def fetch_duunitori_jobs(max_pages=10):
                     'requirements': extract_requirements(description)
                 })
 
-            time.sleep(1)  # Задержка для предотвращения перегрузки сервера
-
+            time.sleep(1)
         print(f"Page {page} processed.")
 
     return job_listings
