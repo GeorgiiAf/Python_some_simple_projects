@@ -1,55 +1,60 @@
-from PyPDF2 import PdfReader, PdfWriter
+import re
 import os
+from PyPDF2 import PdfReader, PdfWriter
+
 
 def split_pdf_by_tasks(input_pdf, output_folder):
-    if not os.path.exists(input_pdf):
-        print(f"Файл {input_pdf} не найден.")
-        return
-
+    # Чтение PDF
     reader = PdfReader(input_pdf)
     os.makedirs(output_folder, exist_ok=True)
 
-    variant_number = 0
     task_number = 0
+    current_variant = None
     writer = None
+    total_tasks = 0
 
     for page_num, page in enumerate(reader.pages):
         text = page.extract_text()
 
-        # Если текст на странице не найден, пропускаем эту страницу
-        if not text:
-            print(f"Страница {page_num + 1} пуста или содержит изображения.")
-            continue
+        # Проверяем на наличие "Вариант"
+        variant_match = re.search(r"Вариант\s*(\d+)", text)
+        if variant_match:
+            # Сохраняем предыдущий вариант, если есть
+            if writer:
+                with open(f"{output_folder}/variant_{current_variant}_task_{task_number}.pdf", "wb") as output_pdf:
+                    writer.write(output_pdf)
 
-        # Если на странице появляется новый вариант
-        if "Вариант " in text:
-            if writer:  # Сохраняем текущую задачу
-                with open(f"{output_folder}/variant{variant_number}_task{task_number}.pdf", "wb") as out_file:
-                    writer.write(out_file)
+            # Новый вариант
+            current_variant = variant_match.group(1)
+            task_number = 0
+            writer = PdfWriter()
+            print(f"Новый вариант: {current_variant}")
 
-            # Переходим к новому варианту
-            variant_number += 1
-            task_number = 0  # Сбросим номер задачи
+        # Проверяем на наличие "Задача"
+        task_match = re.search(r"Задача\s*(\d+)", text)
+        if task_match:
+            task_number += 1
+            print(f"Новая задача: {task_number} в варианте {current_variant}")
+
+            # Сохраняем текущую задачу
+            if writer:
+                with open(f"{output_folder}/variant_{current_variant}_task_{task_number}.pdf", "wb") as output_pdf:
+                    writer.write(output_pdf)
+
+            # Создаём новый writer для новой задачи
             writer = PdfWriter()
 
-        # Если на странице появляется новая задача
-        if "Задача " in text:
-            if writer and task_number > 0:  # Сохраняем текущую задачу
-                with open(f"{output_folder}/variant{variant_number}_task{task_number}.pdf", "wb") as out_file:
-                    writer.write(out_file)
-            task_number += 1  # Увеличиваем номер задачи
-            writer = PdfWriter()  # Создаем новый файл для следующей задачи
-
-        # Добавляем текущую страницу в файл задачи
+        # Добавляем страницу в текущий файл
         if writer:
             writer.add_page(page)
 
-    # Сохраняем последнюю задачу последнего варианта
+    # Сохраняем последнюю задачу
     if writer:
-        with open(f"{output_folder}/variant{variant_number}_task{task_number}.pdf", "wb") as out_file:
-            writer.write(out_file)
+        with open(f"{output_folder}/variant_{current_variant}_task_{task_number}.pdf", "wb") as output_pdf:
+            writer.write(output_pdf)
 
-    print(f"PDF разбит на {variant_number} вариантов и {task_number} задач.")
+    print(f"PDF разбит на {total_tasks} задач.")
+
 
 # Использование
 input_pdf = "Практическое задание по курсу - Задача.pdf"  # Ваш PDF файл
