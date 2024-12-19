@@ -6,12 +6,24 @@
     <link rel="stylesheet" href="../static/css/styles.css">
 </head>
 <body>
-    <h1>Данные студентов</h1>
-    <input type="text" id="surname" placeholder="Введите фамилию">
-    <button onclick="getStudents()">Найти студента</button>
-    <button onclick="getAllStudents()">Показать всех студентов</button>
-	<button onclick="getAllNames()">Показать список фамилий</button>
-    <div id="result"></div>
+    <h1>Управление данными студентов</h1>
+
+    <!-- Форма для добавления нового студента -->
+    <div>
+        <h2>Добавить студента</h2>
+        <input type="text" id="student-id-input" placeholder="Номер зачетной книжки" required>
+        <input type="text" id="name-input" placeholder="Имя" required>
+        <input type="text" id="surname-input" placeholder="Фамилия" required>
+        <textarea id="subjects-input" placeholder="Предметы и оценки (например, math:5, history:4)"></textarea>
+        <button onclick="addStudent()">Добавить студента</button>
+    </div>
+
+    <hr>
+
+    <!-- Таблица студентов -->
+    <h2>Список студентов</h2>
+    <div id="students-container"></div>
+
     <script src="../static/js/script.js"></script>
 </body>
 </html>
