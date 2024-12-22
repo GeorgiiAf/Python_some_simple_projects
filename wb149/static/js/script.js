@@ -199,3 +199,114 @@ function viewStudentDetails(studentId) {
 function closeModal() {
     document.getElementById('student-modal').style.display = 'none';
 }
+
+function addGrade() {
+    const studentId = document.getElementById('student-id-display').innerText;
+    const subject = document.getElementById('subject-name').value.trim();
+    const grade = document.getElementById('subject-grade').value.trim();
+    const date = document.getElementById('subject-date').value.trim();
+
+    if (!subject || !grade || !date) {
+        alert('Все поля должны быть заполнены.');
+        return;
+    }
+
+    // Добавить запрос на добавление оценки на сервер
+    fetch('/add_grade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_id: studentId, subject_name: subject, grade: grade, date: date })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message || 'Оценка успешно добавлена.');
+        viewStudentDetails(studentId); // Перезагрузить данные студента
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при добавлении оценки.');
+    });
+}
+
+function editGrade(gradeId) {
+    const subjectName = prompt("Введите новое название предмета:");
+    const gradeValue = prompt("Введите новую оценку:");
+    const date = prompt("Введите новую дату:");
+
+    if (!subjectName || !gradeValue || !date) {
+        alert('Все поля должны быть заполнены.');
+        return;
+    }
+
+    fetch(`/edit_grade/${gradeId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject_name: subjectName, grade: gradeValue, date: date })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message || 'Оценка успешно обновлена.');
+        const studentId = document.getElementById('student-id-display').innerText;
+        viewStudentDetails(studentId); // Перезагрузить данные студента
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при редактировании оценки.');
+    });
+}
+
+function deleteGrade(gradeId) {
+    if (!confirm("Вы уверены, что хотите удалить эту оценку?")) return;
+
+    fetch(`/delete_grade/${gradeId}`, { method: 'DELETE' })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message || 'Оценка успешно удалена.');
+        const studentId = document.getElementById('student-id-display').innerText;
+        viewStudentDetails(studentId); // Перезагрузить данные студента
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при удалении оценки.');
+    });
+}
+
+function viewStudentDetails(studentId) {
+    fetch(`/get_grades/${studentId}`)
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('student-id-display').innerText = studentId;
+
+        const gradesTableBody = document.querySelector('#grades-table tbody');
+        gradesTableBody.innerHTML = ''; // Очищаем таблицу перед вставкой новых данных
+
+        if (!data.grades || data.grades.length === 0) {
+            const row = gradesTableBody.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 5;
+            cell.textContent = 'Оценки отсутствуют.';
+            cell.style.textAlign = 'center';
+            return;
+        }
+
+        data.grades.forEach(grade => {
+            const row = gradesTableBody.insertRow();
+            row.innerHTML = `
+                <td>${grade.subject_name}</td>
+                <td>${grade.grade}</td>
+                <td>${grade.date}</td>
+                <td>
+                    <button onclick="editGrade('${grade.id}')">Редактировать</button>
+                    <button onclick="deleteGrade('${grade.id}')">Удалить</button>
+                </td>
+            `;
+        });
+
+        // Показываем модальное окно
+        document.getElementById('student-modal').style.display = 'block';
+    })
+     .catch(error => {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при загрузке оценок.');
+    });
+}
