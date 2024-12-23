@@ -1,17 +1,19 @@
 from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from datetime import datetime
 
 app = Flask(__name__)
-
-# Настройка базы данных SQLite
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # Модель для студентов
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.String(20), unique=True, nullable=False)  # Уникальный номер зачетной книжки
+    student_id = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(50), nullable=False)
     surname = db.Column(db.String(50), nullable=False)
 
@@ -29,16 +31,26 @@ class Subject(db.Model):
     student_id = db.Column(db.String(20), db.ForeignKey('student.student_id'), nullable=False)
     subject_name = db.Column(db.String(50), nullable=False)
     grade = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.Date, nullable=False)
 
     def to_dict(self):
         return {
             "id": self.id,
             "student_id": self.student_id,
             "subject_name": self.subject_name,
-            "grade": self.grade
+            "grade": self.grade,
+            "date": self.date.strftime('%Y-%m-%d') if self.date else None  # Добавляем дату
         }
 
 # Главная страница
+@app.errorhandler(404)
+def not_found_error(error):
+    return jsonify({"error": "Resource not found"}), 404
+
+@app.errorhandler(400)
+def bad_request_error(error):
+    return jsonify({"error": "Bad request"}), 400
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -54,6 +66,23 @@ def get_students():
         student_data['subjects'] = [subject.to_dict() for subject in subjects]
         result.append(student_data)
     return jsonify(result)
+
+
+@app.route('/search_students', methods=['GET'])
+def search_students():
+    query = request.args.get('query', '').lower()
+
+    if not query:
+        return jsonify({"error": "Query parameter is required!"}), 400
+
+    students = Student.query.filter(
+        (Student.name.ilike(f'%{query}%')) |
+        (Student.surname.ilike(f'%{query}%'))
+    ).all()
+
+    result = [student.to_dict() for student in students]
+    return jsonify(result)
+
 
 # Добавление нового студента
 @app.route('/add_student', methods=['POST'])
@@ -95,14 +124,52 @@ def add_grade():
     student = Student.query.filter_by(student_id=data['student_id']).first()
     if not student:
         return jsonify({"error": "Student not found!"}), 404
+
+    # Добавляем дату
     new_subject = Subject(
         student_id=student.student_id,
         subject_name=data['subject_name'],
-        grade=data['grade']
+        grade=data['grade'],
+        date=datetime.now()  # Текущая дата
     )
     db.session.add(new_subject)
     db.session.commit()
     return jsonify({"message": "Grade added successfully!"})
+
+# Удаление оценки
+@app.route('/delete_grade/<int:grade_id>', methods=['DELETE'])
+def delete_grade(grade_id):
+    subject = Subject.query.get_or_404(grade_id)
+    db.session.delete(subject)
+    db.session.commit()
+    return jsonify({"message": "Grade deleted successfully!"})
+
+# Редактирование оценки
+@app.route('/edit_grade/<int:grade_id>', methods=['PUT'])
+def edit_grade(grade_id):
+    data = request.get_json()
+    subject = Subject.query.get_or_404(grade_id)
+    subject.subject_name = data.get('subject_name', subject.subject_name)
+    subject.grade = data.get('grade', subject.grade)
+    db.session.commit()
+    return jsonify({"message": "Grade updated successfully!"})
+
+# Получение оценок конкретного студента
+@app.route('/get_grades/<string:student_id>', methods=['GET'])
+def get_grades(student_id):
+    student = Student.query.filter_by(student_id=student_id).first_or_404()
+    subjects = Subject.query.filter_by(student_id=student.student_id) \
+        .order_by(Subject.date.desc()) \
+        .all()  # Сортируем по дате
+
+    return jsonify({
+        "student": {
+            **student.to_dict(),
+            "total_grades": len(subjects),
+            "average_grade": sum(s.grade for s in subjects) / len(subjects) if subjects else 0
+        },
+        "grades": [subject.to_dict() for subject in subjects]
+    })
 
 # Запуск приложения
 if __name__ == '__main__':
