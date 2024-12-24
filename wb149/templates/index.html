@@ -61,15 +61,16 @@
                     </tbody>
                 </table>
                 <h3>Добавить оценку</h3>
-                <form id="add-grade-form" onsubmit="addGrade(); return false;">
+                <div class="grade-form">
                     <input type="text" id="modal-subject-name" placeholder="Название предмета" required>
                     <input type="number" id="modal-subject-grade" placeholder="Оценка" min="1" max="5" required>
                     <input type="date" id="modal-subject-date" required>
-                    <button type="submit">Добавить</button>
-                </form>
+                    <button onclick="addGrade()">Добавить</button>
+                </div>
             </div>
+            <!-- Добавляем modal-footer для кнопки сохранения -->
             <div class="modal-footer">
-                <button onclick="closeModal()" class="modal-button">Закрыть</button>
+                <!-- Кнопки сохранения будут добавляться сюда динамически -->
             </div>
         </div>
     </div>
@@ -87,36 +88,6 @@
         </form>
     </div>
 
-    <hr>
-
-    <!-- Раздел для работы с предметами -->
-    <div id="subjects-section" style="display: none;">
-        <h2>Оценки студента</h2>
-        <div id="selected-student"></div>
-        <table id="subjects-table">
-            <thead>
-                <tr>
-                    <th>Предмет</th>
-                    <th>Оценка</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Данные будут подгружаться динамически -->
-            </tbody>
-        </table>
-        <h3>Добавить предмет</h3>
-        <form onsubmit="addGrade(); return false;">
-            <input type="text" id="subjects-section-subject-name" placeholder="Название предмета" required>
-            <input type="number" id="subjects-section-subject-grade" placeholder="Оценка" min="1" max="5" required>
-            <button type="submit">Добавить</button>
-        </form>
-    </div>
-
     <script src="/static/js/script.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', function() {
-        getAllStudents();
-    });
-</script>
 </body>
 </html>
