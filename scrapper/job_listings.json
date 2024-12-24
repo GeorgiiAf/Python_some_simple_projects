@@ -1,0 +1,602 @@
+[
+    {
+        "title": "Chief Design Engineer - Algorithms and AI",
+        "company": "Ponsse Oyj",
+        "location": "- Tampere",
+        "published_date": "Julkaistu 4.12.",
+        "closing_date": "Päättyy 31.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Service Engineer (Customer-centric SW Developer)",
+        "company": "Aiforia Technologies Oyj",
+        "location": "- Helsinki",
+        "published_date": "Published 9.12.",
+        "closing_date": "Ends 1.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Expert, Structural Dynamics",
+        "company": "Wärtsilä Oyj Abp",
+        "location": "- Vaasa",
+        "published_date": "Published 11.12.",
+        "closing_date": "Ends 5.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Analyytikko",
+        "company": "B2 Impact Oy",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 3.12.",
+        "closing_date": "Päättyy 17.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Backend/Fullstack Developer",
+        "company": "Sensofusion Oy",
+        "location": "- Vantaa",
+        "published_date": "Julkaistu 11.12.",
+        "closing_date": "Päättyy 31.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Service Engineer",
+        "company": "Aidon Oy",
+        "location": "- Vantaa",
+        "published_date": "Julkaistu 1.12.",
+        "closing_date": "Päättyy 31.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Graduate, Market Intelligence",
+        "company": "UPM",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 2.12.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Graduate, Strategy & Digital, UPM Raflatac",
+        "company": "UPM",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 2.12.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Graduate, AI & Analytics (m/f/d)",
+        "company": "UPM",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 2.12.",
+        "closing_date": "Päättyy 31.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Senior TA Developer",
+        "company": "Ouro Solutions Oy",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 28.11.",
+        "closing_date": "1 päivä jäljellä",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": ".Net / Python Developer",
+        "company": "twoday Finland",
+        "location": "- Turku",
+        "published_date": "Julkaistu 12.9.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Summer Jobs at Metsä Group - Summer Trainee, Data and AI, Sales & Operations Planning",
+        "company": "Metsä Group",
+        "location": "- Espoo",
+        "published_date": "Julkaistu 9.12.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Summer Jobs at Metsä Group – Trainee, reporting and analytics",
+        "company": "Metsä Group",
+        "location": "- Espoo",
+        "published_date": "Julkaistu 9.12.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Test Automation Specialist",
+        "company": "Digia",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 8.12.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Senior Data Engineer",
+        "company": "Digia",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 8.12.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Databricks Data Engineer",
+        "company": "Accenture",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 7.12.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Azure Full Stack Developer",
+        "company": "Accenture",
+        "location": "- Helsinki",
+        "published_date": "Published 7.12.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Graduate, AI & Analytics (m/f/d)",
+        "company": "UPM",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 3.12.",
+        "closing_date": "Päättyy 1.6.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "DevOps Engineer",
+        "company": "Patria",
+        "location": "- Finland",
+        "published_date": "Julkaistu 3.12.",
+        "closing_date": "Päättyy 1.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Summer Trainee, Process Data Analysis for Tools & Processes, Pulp Operations",
+        "company": "UPM",
+        "location": "- Lappeenranta",
+        "published_date": "Julkaistu 2.12.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Operational Resilience Specialist",
+        "company": "KPMG",
+        "location": "- Helsinki",
+        "published_date": "Published 26.11.",
+        "closing_date": "Ends 19.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Marketing Intelligence and Insights Partner, Supercell",
+        "company": "Supercell / Clevry",
+        "location": "- Helsinki",
+        "published_date": "Published 25.11.",
+        "closing_date": "Ends 31.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "IT-asiantuntija (Linux-osaaja)",
+        "company": "Helsingin yliopisto",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 20.11.",
+        "closing_date": "Päättyy 7.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "ICT-asiantuntija, Millog Oy Riihimäki",
+        "company": "Millog",
+        "location": "- Riihimäki",
+        "published_date": "Julkaistu 19.11.",
+        "closing_date": "4 päivää jäljellä",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Software Developer at FinnGen",
+        "company": "Helsingin yliopisto",
+        "location": "- Helsinki",
+        "published_date": "Published 18.11.",
+        "closing_date": "5 days left",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "AWS Cloud Engineer / Architect",
+        "company": "Accenture",
+        "location": "- Helsinki",
+        "published_date": "Published 25.10.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Senior Java Full Stack Developer",
+        "company": "Accenture",
+        "location": "- Helsinki",
+        "published_date": "Published 4.10.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Data Architect",
+        "company": "Accenture",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 17.9.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Defense Synthetics and Emerging Technology Engineer",
+        "company": "Accenture",
+        "location": "- Helsinki",
+        "published_date": "Published 29.8.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Senior Software Developer, Smart Energy Solutions (Helsinki, Tampere, Turku)",
+        "company": "Elisa Oyj",
+        "location": "- Helsinki",
+        "published_date": "Published 11.12.",
+        "closing_date": "Ends 6.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Postdoctoral researcher, ERC GEOCLOUD project (3+1 years)",
+        "company": "Aalto-yliopisto",
+        "location": "- Espoo",
+        "published_date": "Published 10.12.",
+        "closing_date": "Ends 10.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Embedded Software Developer, Hyvinkää",
+        "company": "Academic Work",
+        "location": "- Hyvinkää",
+        "published_date": "Published 9.12.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Automation Engineer - Marine Pilot Control (MPC)",
+        "company": "ABB",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 8.12.",
+        "closing_date": "4 päivää jäljellä",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Analyst / Consultant, AFRY Management Consulting Energy Team, Finland",
+        "company": "AFRY",
+        "location": "- Vantaa",
+        "published_date": "Published 5.12.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Cloud Specialist (Azure)",
+        "company": "Aalto-yliopisto",
+        "location": "- Espoo",
+        "published_date": "Published 4.12.",
+        "closing_date": "Ends 6.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Doctoral researcher in Multi-level optimization of industrial processes",
+        "company": "Aalto-yliopisto",
+        "location": "- Espoo",
+        "published_date": "Published 3.12.",
+        "closing_date": "Ends 1.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "PhD Position in Hygrothermal Building Physics for Resilient Renovations",
+        "company": "Aalto-yliopisto",
+        "location": "- Espoo",
+        "published_date": "Published 2.12.",
+        "closing_date": "Ends 16.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Data Engineer (Helsinki or other)",
+        "company": "Elisa Oyj",
+        "location": "- Helsinki",
+        "published_date": "Published 2.12.",
+        "closing_date": "4 days left",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Research Assistant for a M.Sc. thesis project on a Quantum Algorithm Execution Interface",
+        "company": "Aalto-yliopisto",
+        "location": "- Espoo",
+        "published_date": "Published 2.12.",
+        "closing_date": "Ends 21.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "RPA-Trainee",
+        "company": "Veikkaus Oy",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 29.11.",
+        "closing_date": "Toistaiseksi voimassa",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Data Analyst Trainee, Marketing (Helsinki)",
+        "company": "Elisa Oyj",
+        "location": "- Helsinki",
+        "published_date": "Published 29.11.",
+        "closing_date": "4 days left",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Data Scientist with software engineering focus, K Group",
+        "company": "Kesko",
+        "location": "- Helsinki",
+        "published_date": "Published 28.11.",
+        "closing_date": "4 days left",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Postdoctoral Researcher, Time-Varying Electromagnetic Systems",
+        "company": "Aalto-yliopisto",
+        "location": "- Espoo",
+        "published_date": "Published 26.11.",
+        "closing_date": "5 days left",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Postdoctoral Researcher, Metasurfaces for Future Communications",
+        "company": "Aalto-yliopisto",
+        "location": "- Espoo",
+        "published_date": "Published 26.11.",
+        "closing_date": "5 days left",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Senior/Mid Level Software Developer",
+        "company": "Sanoma Media Finland Oy",
+        "location": "- Helsinki",
+        "published_date": "Published 22.11.",
+        "closing_date": "Ends 31.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Parts Lifecycle Intelligence Manager",
+        "company": "Kalmar",
+        "location": "- Tampere",
+        "published_date": "Published 5.11.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Chief Quantitative Analyst for Model Risk Management (Temporary Position)",
+        "company": "Danske Bank",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 28.10.",
+        "closing_date": "Päättyy 2.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Lead Full Stack Developer",
+        "company": "Kalmar",
+        "location": "- Tampere",
+        "published_date": "Published 1.7.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Manufacturing Engineer",
+        "company": "KNL",
+        "location": "- Oulu",
+        "published_date": "Julkaistu 9.12.",
+        "closing_date": "Päättyy 29.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Data-arkkitehti",
+        "company": "Capgemini Finland Oy",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 9.12.",
+        "closing_date": "Päättyy 22.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Backend kehittäjä",
+        "company": "Lease Deal IT Oy",
+        "location": "- Helsinki",
+        "published_date": "Julkaistu 9.12.",
+        "closing_date": "Päättyy 31.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Quantum Service Engineer",
+        "company": "IQM Quantum Computers",
+        "location": "- Espoo",
+        "published_date": "Published 9.12.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Graphics Programmer",
+        "company": "AILiveSim",
+        "location": "- Helsinki",
+        "published_date": "Published 10.12.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Senior Quality Assurance Engineer",
+        "company": "Nordea Sweden",
+        "location": "- Stockholm",
+        "published_date": "Published 10.12.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Senior Quality Assurance Lead",
+        "company": "Nordea Sweden",
+        "location": "- Stockholm",
+        "published_date": "Published 10.12.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Senior Signal Processing Engineer",
+        "company": "Doublepoint",
+        "location": "- Helsinki",
+        "published_date": "Published 11.12.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Air Quality Scientist (Remote)",
+        "company": "CREA - Centre for Research on Energy and Clean Air",
+        "location": "- Helsinki",
+        "published_date": "Published 10.12.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Rikosylikonstaapeli 08.06 tai tietoanalyytikko 40.12.02 (2 virkaa)",
+        "company": "Keskusrikospoliisi",
+        "location": "- Vantaa",
+        "published_date": "Julkaistu 10.12.",
+        "closing_date": "Päättyy 7.1.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Data Architect - Tietoevry Create (m/f/d)",
+        "company": "Tietoevry",
+        "location": "- Espoo",
+        "published_date": "Julkaistu 10.12.",
+        "closing_date": "Päättyy 19.12.",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    },
+    {
+        "title": "Lab Data Analyst",
+        "company": "Microsoft",
+        "location": "- Espoo",
+        "published_date": "Published 9.12.",
+        "closing_date": "Open until further notice",
+        "requirements": [
+            "No specific requirements found"
+        ]
+    }
+]
