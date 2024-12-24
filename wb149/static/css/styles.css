@@ -218,3 +218,28 @@ tr:hover {
 .modal-button:hover {
     background-color: #45a049;
 }
+
+.grade-form input {
+    margin: 5px;
+    padding: 5px;
+}
+
+/* Стили для кнопок в таблице оценок */
+.grade-action-cell button {
+    margin: 2px;
+    padding: 3px 8px;
+    cursor: pointer;
+}
+
+/* Стили для полей редактирования в таблице */
+td input.edit-subject,
+td input.edit-date,
+td input.edit-grade {
+    width: 90%;
+    padding: 3px;
+    margin: 2px;
+}
+
+td input.edit-grade {
+    width: 60px;
+}
