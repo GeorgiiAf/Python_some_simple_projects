@@ -1,4 +1,3 @@
-// Функция для добавления студента
 function addStudent() {
     const name = document.getElementById('name-input').value.trim();
     const surname = document.getElementById('surname-input').value.trim();
@@ -312,146 +311,151 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function editStudent(studentId) {
-    fetch(`/get_student/${studentId}`)
-        .then(response => response.json())
-        .then(data => {
-            // Заполнение формы данными студента
-            document.getElementById('name-input').value = data.name;
-            document.getElementById('surname-input').value = data.surname;
-            document.getElementById('student-id-input').value = data.student_id; // Обновляем поле зачетной книжки
-
-            // Добавление кнопки сохранения
-            let saveButton = document.getElementById('save-button');
-            if (!saveButton) {
-                saveButton = document.createElement('button');
-                saveButton.id = 'save-button';
-                saveButton.textContent = 'Сохранить';
-                saveButton.onclick = function () {
-                    saveStudentChanges(studentId);
-                };
-                document.querySelector('#add-student-section form').appendChild(saveButton);
-            } else {
-                saveButton.onclick = function () {
-                    saveStudentChanges(studentId);
-                };
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка при загрузке данных студента:', error);
-            alert('Не удалось загрузить данные студента.');
-        });
-}
-
-function saveStudentChanges(studentId) {
-    const studentName = document.getElementById('name-input').value;
-    const studentSurname = document.getElementById('surname-input').value;
-    const studentIdInput = document.getElementById('student-id-input').value; // Получаем номер студенческой книжки
-
-    // Проверка на 8 цифр
-    const regex = /^\d{8}$/;
-    if (!regex.test(studentIdInput)) {
-        alert('Номер студента должен состоять из 8 цифр!');
-        return; // Прекращаем выполнение, если номер неверный
+    const row = document.querySelector(`tr[data-id="${studentId}"]`);
+    if (!row) {
+        console.error('Студент не найден.');
+        return;
     }
 
+    // Делаем ячейки редактируемыми
+    const nameCell = row.querySelector('.name-cell');
+    const surnameCell = row.querySelector('.surname-cell');
+
+    const nameValue = nameCell.textContent.trim();
+    const surnameValue = surnameCell.textContent.trim();
+
+    nameCell.innerHTML = '';
+    surnameCell.innerHTML = '';
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.value = nameValue;
+
+    const surnameInput = document.createElement('input');
+    surnameInput.type = 'text';
+    surnameInput.value = surnameValue;
+
+    nameCell.appendChild(nameInput);
+    surnameCell.appendChild(surnameInput);
+
+    // Добавляем кнопку "Сохранить"
+    const actionButtons = row.querySelector('.action-buttons');
+    const saveButton = document.createElement('button');
+    saveButton.textContent = 'Сохранить';
+    saveButton.className = 'save-btn';
+
+    saveButton.onclick = () => saveStudentChanges(studentId, row);
+
+    // Скрываем кнопку "Редактировать"
+    const editButton = row.querySelector('.edit-btn');
+    editButton.style.display = 'none';
+
+    actionButtons.appendChild(saveButton);
+}
+
+function saveStudentChanges(studentId, row) {
+    const nameInput = row.querySelector('.name-cell input');
+    const surnameInput = row.querySelector('.surname-cell input');
+
+    const newName = nameInput.value.trim();
+    const newSurname = surnameInput.value.trim();
+
+    if (!newName || !newSurname) {
+        alert('Имя и фамилия не могут быть пустыми.');
+        return;
+    }
+
+    // Отправляем изменения на сервер
     fetch(`/edit_student/${studentId}`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            student_id: studentIdInput,
-            name: studentName,
-            surname: studentSurname
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName, surname: newSurname }),
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Ошибка при сохранении изменений');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Student updated successfully:', data);
-        alert('Данные успешно обновлены!');
-
-        // Скрыть кнопку после успешного сохранения
-        const saveButton = document.getElementById('save-button');
-        saveButton.style.display = 'none'; // Скрытие кнопки сохранения
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Ошибка при сохранении изменений');
-    });
-}
-function editGrade(gradeId) {
-    // Получение ID студента, которому принадлежит эта оценка
-    fetch(`/get_grade/${gradeId}`)  // Это предположительный маршрут, который должен быть заменен
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка при загрузке данных оценки');
-            }
+        .then((response) => {
+            if (!response.ok) throw new Error('Ошибка при сохранении изменений');
             return response.json();
         })
-        .then(data => {
-            // Заполняем модальное окно
-            document.getElementById('modal-subject-name').value = data.subject_name;
-            document.getElementById('modal-subject-grade').value = data.grade;
-            document.getElementById('modal-subject-date').value = data.date;
+        .then(() => {
+            alert('Данные успешно обновлены!');
+            row.querySelector('.name-cell').textContent = newName;
+            row.querySelector('.surname-cell').textContent = newSurname;
 
-            // Удаляем предыдущую кнопку сохранения
-            const modalFooter = document.querySelector('.modal-footer');
-            const existingSaveButton = document.getElementById('save-grade-button');
-            if (existingSaveButton) {
-                existingSaveButton.remove();
-            }
+            const saveButton = row.querySelector('.save-btn');
+            saveButton.remove();
 
-            // Добавляем новую кнопку сохранения
-            const saveButton = document.createElement('button');
-            saveButton.id = 'save-grade-button';
-            saveButton.textContent = 'Сохранить';
-            saveButton.onclick = function () {
-                saveGradeChanges(gradeId);
-            };
-
-            modalFooter.appendChild(saveButton);
-
-            // Открываем модальное окно
-            document.getElementById('student-modal').style.display = 'block';
+            row.querySelector('.edit-btn').style.display = 'inline-block';
         })
-        .catch(error => {
+        .catch((error) => {
+            console.error('Ошибка:', error);
+            alert('Не удалось сохранить изменения.');
+        });
+}
+function editGrade(gradeId) {
+    fetch(`/get_grade/${gradeId}`)
+        .then((response) => {
+            if (!response.ok) throw new Error('Ошибка при загрузке данных');
+            return response.json();
+        })
+        .then((data) => {
+            // Заполняем модальное окно текущими данными
+            const modal = document.getElementById('student-modal');
+            modal.querySelector('#modal-subject-name').value = data.subject_name;
+            modal.querySelector('#modal-subject-grade').value = data.grade;
+            modal.querySelector('#modal-subject-date').value = data.date;
+
+            // Добавляем обработчик кнопки "Сохранить"
+            const saveGradeButton = document.getElementById('save-grade-btn');
+            saveGradeButton.onclick = () => saveGradeChanges(gradeId);
+            modal.style.display = 'block';
+        })
+        .catch((error) => {
             console.error('Ошибка:', error);
             alert('Не удалось загрузить данные оценки.');
         });
 }
 
 function saveGradeChanges(gradeId) {
-    const newSubjectName = document.getElementById('subject_name').value; // Получаем название предмета
-    const newGrade = document.getElementById('grade').value; // Получаем оценку
+    const newSubject = document.getElementById('modal-subject-name').value.trim();
+    const newGrade = document.getElementById('modal-subject-grade').value.trim();
+    const newDate = document.getElementById('modal-subject-date').value.trim();
 
-    fetch(`http://localhost:5000/edit_grade/${gradeId}`, {
+    if (!newSubject || !newGrade || !newDate) {
+        alert('Все поля должны быть заполнены.');
+        return;
+    }
+
+    if (isNaN(newGrade) || newGrade < 0 || newGrade > 5) {
+        alert('Оценка должна быть числом от 0 до 5.');
+        return;
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+        alert('Дата должна быть в формате ГГГГ-ММ-ДД.');
+        return;
+    }
+
+    fetch(`/edit_grade/${gradeId}`, {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            subject_name: newSubjectName,
-            grade: newGrade
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject_name: newSubject, grade: newGrade, date: newDate }),
+    })
+        .then((response) => {
+            if (!response.ok) throw new Error('Ошибка при сохранении');
+            return response.json();
         })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Ошибка при сохранении изменений');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Grade updated successfully', data);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Ошибка при сохранении изменений');
-    });
+        .then(() => {
+            alert('Оценка успешно обновлена!');
+            document.getElementById('student-modal').style.display = 'none';
+        })
+        .catch((error) => {
+            console.error('Ошибка:', error);
+            alert(`Не удалось сохранить изменения: ${error.message}`);
+        });
+}
+
+// Закрытие модального окна
+function closeModal() {
+    document.getElementById('student-modal').style.display = 'none';
 }
 
 function deleteStudent(studentId) {

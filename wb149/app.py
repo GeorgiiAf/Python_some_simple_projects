@@ -307,20 +307,7 @@ def add_student():
     db.session.commit()
     return jsonify({"message": "Student added successfully!"})
 
-# Редактирование студента
-@app.route('/edit_student/<string:student_id>', methods=['PUT'])
-def edit_student(student_id):
-    data = request.get_json()
-    # Проверка, что student_id состоит из 8 цифр
-    if len(data['student_id']) != 8 or not data['student_id'].isdigit():
-        return jsonify({"error": "Student ID must be 8 digits!"}), 400
-    student = Student.query.filter_by(student_id=student_id).first_or_404()
-    student.name = data['name']
-    student.surname = data['surname']
-    db.session.commit()
-    return jsonify({"message": "Student updated successfully!"})
 
-# Удаление студента
 @app.route('/delete_student/<string:student_id>', methods=['DELETE'])
 def delete_student(student_id):
     student = Student.query.filter_by(student_id=student_id).first_or_404()
