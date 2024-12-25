@@ -149,8 +149,6 @@ def add_grade():
     return jsonify({"message": "Grade added successfully!"})
 
 
-
-# Удаление оценки
 @app.route('/delete_grade/<int:grade_id>', methods=['DELETE'])
 def delete_grade(grade_id):
     subject = Subject.query.get_or_404(grade_id)
