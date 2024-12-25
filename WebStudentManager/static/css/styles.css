@@ -1,163 +1,171 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif; /* Основной шрифт */
     margin: 0;
     padding: 20px;
-    background-color: #f0f0f0;
+    background-color: #f0f0f0; /* Светло-серый фон */
 }
 
 h1 {
-    color: #333;
+    color: #333; /* Темный цвет заголовка */
 }
 
 h2 {
-    color: #555;
+    color: #555; /* Цвет заголовков второго уровня */
     margin-top: 30px;
 }
 
+/* === Стили для полей ввода и кнопок === */
 input, button {
     margin: 10px 0;
     padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #ccc; /* Серый бордер */
+    border-radius: 4px; /* Сглаженные углы */
     font-size: 14px;
 }
 
 button {
-    background-color: #4CAF50;
+    background-color: #4CAF50; /* Зеленый фон */
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease; /* Анимация при наведении */
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #45a049; /* Темно-зеленый фон при наведении */
 }
 
+/* === Стили для таблиц === */
 table {
-    border-collapse: collapse;
-    width: 100%;
+    border-collapse: collapse; /* Убираем двойные линии */
+    width: 100%; /* Полная ширина */
     background-color: white;
     margin-top: 20px;
 }
 
 th, td {
-    border: 1px solid #ddd;
+    border: 1px solid #ddd; /* Серые бордюры ячеек */
     padding: 10px;
-    text-align: left;
+    text-align: left; /* Выравнивание текста влево */
 }
 
 th {
-    background-color: #c2c2c2;
+    background-color: #c2c2c2; /* Светло-серый фон заголовков таблицы */
     font-weight: bold;
 }
 
 tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: #f9f9f9; /* Разные оттенки строк для читаемости */
 }
 
 tr:hover {
-    background-color: #f5f5f5;
+    background-color: #f5f5f5; /* Подсветка строки при наведении */
 }
 
+/* === Стили для кнопок действий в таблице === */
 .action-buttons {
-    display: flex;
-    gap: 10px;
+    display: flex; /* Расположить кнопки в ряд */
+    gap: 10px; /* Промежуток между кнопками */
 }
 
 .action-buttons button {
     padding: 5px 10px;
-    font-size: 12px;
+    font-size: 12px; /* Меньший шрифт для компактности */
     border-radius: 4px;
 }
 
+/* Индивидуальные стили для кнопок редактирования и удаления */
 .action-buttons .edit-btn {
-    background-color: #ff9800;
+    background-color: #ff9800; /* Оранжевый фон */
     color: white;
 }
 
 .action-buttons .edit-btn:hover {
-    background-color: #e68a00;
+    background-color: #e68a00; /* Темно-оранжевый при наведении */
 }
 
 .action-buttons .delete-btn {
-    background-color: #f44336;
+    background-color: #f44336; /* Красный фон */
     color: white;
 }
 
 .action-buttons .delete-btn:hover {
-    background-color: #d32f2f;
+    background-color: #d32f2f; /* Темно-красный при наведении */
 }
 
+/* === Стили для контейнера с предметами === */
 .subjects-container {
     margin-top: 20px;
     padding: 10px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    border-radius: 4px;
+    border: 1px solid #ddd; /* Легкий серый бордер */
+    background-color: #fff; /* Белый фон */
+    border-radius: 4px; /* Сглаженные углы */
 }
 
 .subjects-container h3 {
     margin: 0;
-    color: #333;
+    color: #333; /* Темный цвет заголовка */
 }
 
 .subjects-container ul {
     padding: 0;
     margin: 10px 0;
-    list-style: none;
+    list-style: none; /* Убираем маркеры списка */
 }
 
 .subjects-container ul li {
     padding: 5px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #ddd; /* Разделение строк списка */
 }
 
 .subjects-container ul li:last-child {
-    border-bottom: none;
+    border-bottom: none; /* Убираем линию у последнего элемента */
 }
 
+
+/* === Стили для модального окна === */
 #student-modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
+    display: none; /* Окно по умолчанию скрыто */
+    position: fixed; /* Фиксированное положение */
+    z-index: 1000; /* Поверх других элементов */
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный фон */
     overflow: auto;
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: 10% auto;
+    background-color: #fefefe; /* Белый фон модального окна */
+    margin: 10% auto; /* Центрирование окна */
     padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
+    border: 1px solid #888; /* Легкий серый бордер */
+    width: 80%; /* Ширина модального окна */
     max-width: 800px;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px; /* Сглаженные углы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тень */
     position: relative;
 }
 
+/* === Стили для заголовка модального окна === */
 .modal-header {
-    display: flex;
+    display: flex; /* Разделение заголовка и кнопки закрытия */
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #ddd; /* Разделительная линия */
     padding-bottom: 10px;
 }
 
 .modal-header h2 {
     margin: 0;
-    color: #333;
+    color: #333; /* Цвет заголовка */
 }
 
 .close {
-    color: #aaa;
+    color: #aaa; /* Светло-серый цвет кнопки закрытия */
     float: right;
-    font-size: 28px;
+    font-size: 28px; /* Размер */
     font-weight: bold;
     cursor: pointer;
     line-height: 1;
@@ -165,8 +173,8 @@ tr:hover {
 
 .close:hover,
 .close:focus {
-    color: #000;
-    text-decoration: none;
+    color: #000; /* Черный цвет при наведении */
+    text-decoration: none; /* Убираем подчеркивание */
 }
 
 .modal-body {

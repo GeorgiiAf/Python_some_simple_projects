@@ -1,6 +1,6 @@
 // Экспорт списка студентов в PDF
 export function exportStudentsToPdf(students) {
-    const { jsPDF } = window.jspdf;
+    const {jsPDF} = window.jspdf;
     const doc = new jsPDF();
 
     doc.text("Список студентов", 10, 10);
@@ -28,7 +28,7 @@ export function exportStudentsToPdf(students) {
 
 // Экспорт зачётной книжки студента в PDF
 export function exportStudentRecordToPdf(studentId, grades) {
-    const { jsPDF } = window.jspdf;
+    const {jsPDF} = window.jspdf;
     const doc = new jsPDF();
 
     doc.text(`Зачётная книжка студента: ${studentId}`, 10, 10);

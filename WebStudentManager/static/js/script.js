@@ -1,9 +1,6 @@
 let isEditing = false;
 
 
-
-
-
 function showLoader() {
     // Можно добавить div с классом loader в HTML
     document.body.style.cursor = 'wait';
