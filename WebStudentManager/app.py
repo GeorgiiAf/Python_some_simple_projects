@@ -10,6 +10,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+
 # Модель для студентов
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -18,8 +19,8 @@ class Student(db.Model):
     surname = db.Column(db.String(50), nullable=False)
     # Добавляем связь с оценками и каскадное удаление
     grades = db.relationship('Subject', backref='student',
-                           cascade='all, delete-orphan',
-                           lazy=True)
+                             cascade='all, delete-orphan',
+                             lazy=True)
 
     def to_dict(self):
         return {
@@ -28,6 +29,7 @@ class Student(db.Model):
             "name": self.name,
             "surname": self.surname
         }
+
 
 # Модель для предметов и оценок
 class Subject(db.Model):
@@ -46,18 +48,22 @@ class Subject(db.Model):
             "date": self.date.strftime('%Y-%m-%d') if self.date else None  # Добавляем дату
         }
 
+
 # Главная страница
 @app.errorhandler(404)
 def not_found_error(error):
     return jsonify({"error": "Resource not found"}), 404
 
+
 @app.errorhandler(400)
 def bad_request_error(error):
     return jsonify({"error": "Bad request"}), 400
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 # Получение всех студентов и их предметов
 @app.route('/get_students', methods=['GET'])
@@ -71,6 +77,7 @@ def get_students():
         result.append(student_data)
     return jsonify(result)
 
+
 @app.route('/get_student/<string:student_id>', methods=['GET'])
 def get_student(student_id):
     student = Student.query.filter_by(student_id=student_id).first_or_404()
@@ -80,7 +87,6 @@ def get_student(student_id):
         "student": student.to_dict(),
         "subjects": [subject.to_dict() for subject in subjects]
     })
-
 
 
 @app.route('/search_students', methods=['GET'])
@@ -124,6 +130,7 @@ def delete_student(student_id):
     db.session.commit()
     return jsonify({"message": "Student deleted successfully!"})
 
+
 # Добавление оценки
 @app.route('/add_grade', methods=['POST'])
 def add_grade():
@@ -155,6 +162,7 @@ def delete_grade(grade_id):
     db.session.delete(subject)
     db.session.commit()
     return jsonify({"message": "Grade deleted successfully!"})
+
 
 # Редактирование оценки
 @app.route('/edit_grade/<int:grade_id>', methods=['PUT'])
@@ -191,6 +199,7 @@ def edit_grade(grade_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
 
+
 @app.route('/edit_student/<string:student_id>', methods=['PUT'])
 def edit_student(student_id):
     data = request.get_json()
@@ -208,6 +217,7 @@ def edit_student(student_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
 
+
 @app.route('/get_grades/<string:student_id>', methods=['GET'])
 def get_grades(student_id):
     student = Student.query.filter_by(student_id=student_id).first_or_404()
@@ -224,10 +234,12 @@ def get_grades(student_id):
         "grades": [subject.to_dict() for subject in subjects]
     })
 
+
 @app.route('/get_grade/<int:grade_id>', methods=['GET'])
 def get_grade(grade_id):
     subject = Subject.query.get_or_404(grade_id)
     return jsonify(subject.to_dict())
+
 
 @app.route('/update_student_field/<student_id>', methods=['PUT'])
 def update_student_field(student_id):
@@ -245,10 +257,8 @@ def update_student_field(student_id):
         return jsonify({'error': 'Студент не найден.'}), 404
 
 
-
 # Запуск приложения
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
-

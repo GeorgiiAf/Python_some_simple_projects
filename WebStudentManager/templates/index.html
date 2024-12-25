@@ -1,97 +1,100 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <title>Управление студентами</title>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-    <h1>Управление студентами</h1>
+<h1>Управление студентами</h1>
 
-    <!-- Раздел для поиска студентов -->
-    <div id="search-section">
-        <h2>Поиск студентов</h2>
-        <input type="text" id="search" placeholder="Введите имя или фамилию">
-        <button onclick="findStudents()">Найти</button>
-        <button onclick="getAllStudents()">Показать всех</button>
-    </div>
+<!-- Раздел для поиска студентов -->
+<div id="search-section">
+    <h2>Поиск студентов</h2>
+    <input type="text" id="search" placeholder="Введите имя или фамилию">
+    <button onclick="findStudents()">Найти</button>
+    <button onclick="getAllStudents()">Показать всех</button>
+</div>
 
-    <hr>
+<hr>
 
-    <!-- Список студентов -->
-    <div id="student-list">
-        <h2>Список студентов</h2>
-        <table id="students-table">
-            <thead>
+<!-- Список студентов -->
+<div id="student-list">
+    <h2>Список студентов</h2>
+    <table id="students-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th data-column="name" onclick="sortTable('name')">
+                Имя <span class="sort-icon">↕</span>
+            </th>
+            <th data-column="surname" onclick="sortTable('surname')">
+                Фамилия <span class="sort-icon">↕</span>
+            </th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Данные будут добавляться динамически -->
+        </tbody>
+    </table>
+</div>
+<hr>
+<!-- Модальное окно для отображения зачётной книжки -->
+<div id="student-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Зачётная книжка студента: <span id="student-id-display"></span></h2>
+            <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-footer">
+            <button id="save-grade-btn" style="display: none;">Сохранить изменения</button>
+        </div>
+        <div class="modal-body">
+            <table id="grades-table">
+                <thead>
                 <tr>
-                    <th>Номер зачетной книжки</th>
-                    <th>Имя</th>
-                    <th>Фамилия</th>
+                    <th onclick="sortGrades('subject')">Предмет</th>
+                    <th>ID</th>
+                    <th onclick="sortGrades('date')">Дата</th>
+                    <th onclick="sortGrades('grade')">Оценка</th>
                     <th>Действия</th>
                 </tr>
-            </thead>
-            <tbody>
-                <!-- Данные будут добавляться динамически -->
-            </tbody>
-        </table>
-    </div>
-
-    <hr>
-
-    <!-- Модальное окно для отображения зачётной книжки -->
-    <div id="student-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Зачётная книжка студента: <span id="student-id-display"></span></h2>
-                <span class="close" onclick="closeModal()">&times;</span>
-            </div>
-            <div class="modal-footer">
-    <button id="save-grade-btn" style="display: none;">Сохранить изменения</button>
-</div>
-            <div class="modal-body">
-                <table id="grades-table">
-                    <thead>
-                        <tr>
-                            <th>Предмет</th>
-                            <th>ID</th>
-                            <th>Дата</th>
-                            <th>Оценка</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Оценки студента будут вставлены сюда -->
-                    </tbody>
-                </table>
-                <h3>Добавить оценку</h3>
-                <div class="grade-form">
-                    <input type="text" id="modal-subject-name" placeholder="Название предмета" required>
-                    <input type="number" id="modal-subject-grade" placeholder="Оценка" min="1" max="5" required>
-                    <input type="date" id="modal-subject-date" required>
-                    <button onclick="addGrade()">Добавить</button>
-                </div>
-            </div>
-            <!-- Добавляем modal-footer для кнопки сохранения -->
-            <div class="modal-footer">
-                <!-- Кнопки сохранения будут добавляться сюда динамически -->
+                </thead>
+                <tbody>
+                <!-- Оценки студента будут вставлены сюда -->
+                </tbody>
+            </table>
+            <h3>Добавить оценку</h3>
+            <div class="grade-form">
+                <input type="text" id="modal-subject-name" placeholder="Название предмета" required>
+                <input type="number" id="modal-subject-grade" placeholder="Оценка" min="1" max="5" required>
+                <input type="date" id="modal-subject-date" required>
+                <button onclick="addGrade()">Добавить</button>
             </div>
         </div>
+        <!-- Добавляем modal-footer для кнопки сохранения -->
+        <div class="modal-footer">
+            <!-- Кнопки сохранения будут добавляться сюда динамически -->
+        </div>
     </div>
+</div>
 
-    <hr>
+<hr>
 
-    <!-- Раздел для добавления нового студента -->
-    <div id="add-student-section">
-        <h2>Добавить студента</h2>
-        <form onsubmit="addStudent(); return false;">
-            <input type="text" id="name-input" placeholder="Имя" required>
-            <input type="text" id="surname-input" placeholder="Фамилия" required>
-            <input type="text" id="student-id-input" placeholder="Номер зачетной книжки" required>
-            <button type="submit">Добавить</button>
+<!-- Раздел для добавления нового студента -->
+<div id="add-student-section">
+    <h2>Добавить студента</h2>
+    <form onsubmit="addStudent(); return false;">
+        <input type="text" id="name-input" placeholder="Имя" required>
+        <input type="text" id="surname-input" placeholder="Фамилия" required>
+        <input type="text" id="student-id-input" placeholder="Номер зачетной книжки" required>
+        <button type="submit">Добавить</button>
 
-        </form>
-    </div>
+    </form>
+</div>
 
-    <script src="/static/js/script.js"></script>
+<script src="/static/js/script.js"></script>
 </body>
 </html>

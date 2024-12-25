@@ -243,3 +243,131 @@ td input.edit-grade {
 td input.edit-grade {
     width: 60px;
 }
+
+.sort-icon {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+th[data-column] {
+    cursor: pointer;
+}
+
+.average-grade {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: right;
+}
+
+/* Стили для режима редактирования */
+.edit-input {
+    width: 90%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #fff;
+    transition: border-color 0.3s ease;
+}
+
+.edit-input:focus {
+    border-color: #4CAF50;
+    outline: none;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
+}
+
+/* Стили для кнопок сохранения и отмены */
+.save-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+}
+
+.save-btn:hover {
+    background-color: #45a049;
+}
+
+.cancel-btn {
+    background-color: #f44336;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+}
+
+.cancel-btn:hover {
+    background-color: #d32f2f;
+}
+
+/* Улучшенные стили для иконок сортировки */
+.sort-icon {
+    margin-left: 5px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 12px;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+th[data-column]:hover .sort-icon {
+    color: #333;
+}
+
+/* Стили для строки в режиме редактирования */
+tr.editing {
+    background-color: #fff9c4 !important;
+}
+
+tr.editing:hover {
+    background-color: #fff9c4 !important;
+}
+
+/* Обновленные стили для среднего балла */
+.average-grade {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    font-weight: bold;
+    text-align: right;
+    border-left: 4px solid #4CAF50;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для заголовков с сортировкой */
+th[data-column] {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 20px; /* Место для иконки */
+}
+
+th[data-column]:hover {
+    background-color: #b3b3b3;
+}
+
+/* Анимация для кнопок действий */
+.action-buttons button {
+    transition: transform 0.1s ease;
+}
+
+.action-buttons button:active {
+    transform: scale(0.95);
+}
+
+/* Стили для отключенного состояния ячеек */
+td.disabled {
+    pointer-events: none;
+    color: #666;
+}
