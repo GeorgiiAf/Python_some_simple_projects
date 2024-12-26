@@ -1,6 +1,5 @@
 let isEditing = false;
 
-
 function showLoader() {
     // Можно добавить div с классом loader в HTML
     document.body.style.cursor = 'wait';
@@ -66,7 +65,6 @@ function addStudent() {
 
 // Улучшенная функция поиска с дебаунсингом
 let searchTimeout;
-
 function findStudents() {
     const searchTerm = document.getElementById('search').value.trim();
 
@@ -169,59 +167,6 @@ function getAllStudents() {
 }
 
 
-// Функция для просмотра деталей студента
-function viewStudentDetails(studentId) {
-    fetch(`/get_grades/${studentId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка при загрузке оценок');
-            }
-            return response.json();
-        })
-        .then(data => {
-            document.getElementById('student-id-display').innerText = studentId;
-
-            const gradesTableBody = document.querySelector('#grades-table tbody');
-            gradesTableBody.innerHTML = '';
-
-            if (!data.grades || data.grades.length === 0) {
-                const row = gradesTableBody.insertRow();
-                const cell = row.insertCell();
-                cell.colSpan = 5;
-                cell.textContent = 'Оценки отсутствуют';
-                cell.style.textAlign = 'center';
-            } else {
-                data.grades.forEach(grade => {
-                    const row = gradesTableBody.insertRow();
-                    row.setAttribute('data-grade-id', grade.id);
-                    row.innerHTML = `
-                        <td class="subject-cell">${grade.subject_name}</td>
-                        <td class="grade-id-cell">${grade.id}</td>
-                        <td class="date-cell">${grade.date || 'Не указано'}</td>
-                        <td class="grade-cell">${grade.grade}</td>
-                        <td class="grade-action-cell">
-                            <button onclick="editGrade('${grade.id}')">Редактировать</button>
-                            <button onclick="deleteGrade('${grade.id}')">Удалить</button>
-                        </td>`;
-                });
-            }
-
-            const modal = document.getElementById('student-modal');
-            modal.style.display = 'block';
-
-            // Добавляем обработчик для закрытия по клику вне модального окна
-            window.onclick = function (event) {
-                if (event.target == modal) {
-                    closeModal();
-                }
-            };
-        })
-        .catch(error => {
-            console.error('Ошибка при загрузке оценок:', error);
-            alert('Произошла ошибка при загрузке оценок студента');
-        });
-}
-
 
 function editCell(event, studentId, field) {
     if (!isEditing) return; // Добавляем проверку режима редактирования
@@ -304,41 +249,41 @@ function closeModal() {
 }
 
 
-// Функция для добавления оценки
 function addGrade() {
     const studentId = document.getElementById('student-id-display').innerText;
     const subject = document.getElementById('modal-subject-name').value.trim();
     const grade = document.getElementById('modal-subject-grade').value.trim();
-    const date = document.getElementById('modal-subject-date').value.trim();
+    const date = document.getElementById('modal-subject-date').value;
 
+    // Валидация
     if (!subject || !grade || !date) {
-        alert('Все поля должны быть заполнены.');
+        alert('Все поля должны быть заполнены');
         return;
     }
 
-    if (isNaN(grade) || grade < 0 || grade > 5) {
-        alert('Оценка должна быть числом от 0 до 5.');
+    const gradeNum = parseInt(grade);
+    if (isNaN(gradeNum) || gradeNum < 0 || gradeNum > 5) {
+        alert('Оценка должна быть числом от 0 до 5');
         return;
     }
 
+    showLoader(); // Функция для отображения индикатора загрузки
     fetch('/add_grade', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
             student_id: studentId,
             subject_name: subject,
-            grade: parseInt(grade),
+            grade: gradeNum,
             date: date
         })
     })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка сервера');
-            }
+            if (!response.ok) throw new Error('Ошибка при добавлении оценки');
             return response.json();
         })
         .then(data => {
-            alert(data.message || 'Оценка успешно добавлена.');
+            alert(data.message || 'Оценка успешно добавлена');
             // Очищаем поля ввода
             document.getElementById('modal-subject-name').value = '';
             document.getElementById('modal-subject-grade').value = '';
@@ -348,19 +293,10 @@ function addGrade() {
         })
         .catch(error => {
             console.error('Ошибка:', error);
-            alert('Произошла ошибка при добавлении оценки.');
-        });
+            alert('Не удалось добавить оценку');
+        })
+        .finally(hideLoader); // Скрываем индикатор загрузки
 }
-
-// Добавьте в начало файла:
-document.addEventListener('DOMContentLoaded', function () {
-    // Очищаем таблицу студентов при загрузке страницы
-    const tableBody = document.querySelector('#students-table tbody');
-    if (tableBody) {
-        tableBody.innerHTML = '';
-    }
-});
-
 
 function editStudent(studentId) {
     if (isEditing) {
@@ -600,55 +536,6 @@ function deleteStudent(studentId) {
             console.error('Ошибка:', error);
             alert('Не удалось удалить студента.');
         });
-}
-
-function addGrade() {
-    const studentId = document.getElementById('student-id-display').innerText;
-    const subject = document.getElementById('modal-subject-name').value.trim();
-    const grade = document.getElementById('modal-subject-grade').value.trim();
-    const date = document.getElementById('modal-subject-date').value;
-
-    // Валидация
-    if (!subject || !grade || !date) {
-        alert('Все поля должны быть заполнены');
-        return;
-    }
-
-    const gradeNum = parseInt(grade);
-    if (isNaN(gradeNum) || gradeNum < 0 || gradeNum > 5) {
-        alert('Оценка должна быть числом от 0 до 5');
-        return;
-    }
-
-    showLoader();
-    fetch('/add_grade', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            student_id: studentId,
-            subject_name: subject,
-            grade: gradeNum,
-            date: date
-        })
-    })
-        .then(response => {
-            if (!response.ok) throw new Error('Ошибка при добавлении оценки');
-            return response.json();
-        })
-        .then(data => {
-            alert(data.message || 'Оценка успешно добавлена');
-            // Очищаем поля ввода
-            document.getElementById('modal-subject-name').value = '';
-            document.getElementById('modal-subject-grade').value = '';
-            document.getElementById('modal-subject-date').value = '';
-            // Обновляем список оценок
-            viewStudentDetails(studentId);
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Не удалось добавить оценку');
-        })
-        .finally(hideLoader);
 }
 
 function deleteGrade(gradeId) {
