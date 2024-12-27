@@ -358,6 +358,64 @@ function editStudent(studentId) {
     actionButtons.appendChild(cancelButton);
 }
 
+function saveGradeChanges(gradeId) {
+    const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
+    if (!row) {
+        alert('Строка не найдена');
+        isGradeEditing = false;
+        return;
+    }
+
+    const subjectInput = row.querySelector('.edit-subject');
+    const dateInput = row.querySelector('.edit-date');
+    const gradeInput = row.querySelector('.edit-grade');
+
+    const subject = subjectInput.value.trim();
+    const date = dateInput.value;
+    const grade = parseInt(gradeInput.value);
+
+    if (!subject || !date) {
+        alert('Все поля должны быть заполнены');
+        return;
+    }
+
+    if (isNaN(grade) || grade < 0 || grade > 5) {
+        alert('Оценка должна быть числом от 0 до 5');
+        return;
+    }
+
+    showLoader();
+    fetch(`/edit_grade/${gradeId}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            subject_name: subject,
+            date: date,
+            grade: grade
+        })
+    })
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка при сохранении');
+            return response.json();
+        })
+        .then(() => {
+            row.classList.remove('editing');
+            isGradeEditing = false;
+            const studentId = document.getElementById('student-id-display').innerText;
+            viewStudentDetails(studentId);
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Не удалось сохранить изменения');
+        })
+        .finally(() => {
+            hideLoader();
+            isGradeEditing = false;
+        });
+}
+
+
+
 function cancelEdit(studentId, row, originalName, originalSurname) {
     const nameCell = row.querySelector('.name-cell');
     const surnameCell = row.querySelector('.surname-cell');
@@ -420,7 +478,15 @@ function saveStudentChanges(studentId, row) {
         });
 }
 
+
+let isGradeEditing = false;
 function editGrade(gradeId) {
+    if (isGradeEditing) {
+        alert('Пожалуйста, завершите текущее редактирование.');
+        return;
+    }
+
+    isGradeEditing = true;
     showLoader();
     fetch(`/get_grade/${gradeId}`)
         .then(response => {
@@ -431,88 +497,36 @@ function editGrade(gradeId) {
             const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
             if (!row) throw new Error('Строка не найдена');
 
-            // Заменяем ячейки на поля ввода
+            row.classList.add('editing');
             const cells = row.querySelectorAll('td');
 
-            // Предмет
             cells[0].innerHTML = `<input type="text" class="edit-subject" value="${grade.subject_name}">`;
-
-            // Дата
             cells[2].innerHTML = `<input type="date" class="edit-date" value="${grade.date}">`;
-
-            // Оценка
             cells[3].innerHTML = `<input type="number" class="edit-grade" value="${grade.grade}" min="0" max="5">`;
-
-            // Кнопки действий
             cells[4].innerHTML = `
-                <button onclick="saveGradeChanges(${gradeId})">Сохранить</button>
-                <button onclick="cancelGradeEdit(${gradeId})">Отмена</button>
+                <button class="save-grade-btn" onclick="saveGradeChanges('${gradeId}')">Сохранить</button>
+                <button class="cancel-grade-btn" onclick="cancelGradeEdit('${gradeId}')">Отмена</button>
             `;
         })
         .catch(error => {
             console.error('Ошибка:', error);
             alert('Не удалось загрузить данные оценки');
+            isGradeEditing = false;
         })
         .finally(hideLoader);
 }
 
-function saveGradeChanges(gradeId) {
-    const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
-    if (!row) {
-        alert('Строка не найдена');
-        return;
-    }
 
-    const subjectInput = row.querySelector('.edit-subject');
-    const dateInput = row.querySelector('.edit-date');
-    const gradeInput = row.querySelector('.edit-grade');
-
-    const subject = subjectInput.value.trim();
-    const date = dateInput.value;
-    const grade = parseInt(gradeInput.value);
-
-    // Валидация
-    if (!subject || !date) {
-        alert('Все поля должны быть заполнены');
-        return;
-    }
-
-    if (isNaN(grade) || grade < 0 || grade > 5) {
-        alert('Оценка должна быть числом от 0 до 5');
-        return;
-    }
-
-    showLoader();
-    fetch(`/edit_grade/${gradeId}`, {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            subject_name: subject,
-            date: date,
-            grade: grade
-        })
-    })
-        .then(response => {
-            if (!response.ok) throw new Error('Ошибка при сохранении');
-            return response.json();
-        })
-        .then(() => {
-            // Обновляем отображение оценок
-            const studentId = document.getElementById('student-id-display').innerText;
-            viewStudentDetails(studentId);
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Не удалось сохранить изменения');
-        })
-        .finally(hideLoader);
-}
 
 function cancelGradeEdit(gradeId) {
+    const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
+    if (row) {
+        row.classList.remove('editing');
+    }
+    isGradeEditing = false;
     const studentId = document.getElementById('student-id-display').innerText;
     viewStudentDetails(studentId);
 }
-
 
 function deleteStudent(studentId) {
     if (!confirm('Вы уверены, что хотите удалить этого студента?')) {

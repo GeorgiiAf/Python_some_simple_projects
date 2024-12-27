@@ -379,3 +379,14 @@ td.disabled {
     pointer-events: none;
     color: #666;
 }
+
+#grades-table tr.editing {
+    background-color: #fff3cd !important;
+}
+
+#grades-table tr.editing input {
+    background-color: white;
+    border: 1px solid #ced4da;
+    padding: 4px;
+    width: 100%;
+}
