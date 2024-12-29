@@ -18,4 +18,3 @@ export function closeModal() {
         saveGradeButton.onclick = null;
     }
 }
-

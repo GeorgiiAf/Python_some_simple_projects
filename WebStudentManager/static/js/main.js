@@ -1,64 +1,55 @@
-import { utils } from './utils.js';
-import { api } from './api.js';
-import { studentModule } from './studentModule.js';
-import { gradeModule } from './gradeModule.js';
+import { showLoader, hideLoader, closeModal } from './utils3.js';
+import { 
+    addStudent, 
+    getAllStudents, 
+    findStudents, 
+    editStudent, 
+    deleteStudent 
+} from './studentService.js';
+import { 
+    addGrade, 
+    viewStudentDetails 
+} from './gradeService.js';
+import { sortTable, sortGrades } from './sortService.js';
 
-// Инициализация обработчиков событий
+// Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
+    // Загрузка начального списка студентов
+    getAllStudents();
+
+    // Назначаем обработчики событий
+    document.querySelector('.search-btn').addEventListener('click', findStudents);
+    document.querySelector('.refresh-btn').addEventListener('click', getAllStudents);
+
     // Форма добавления студента
-    const addStudentForm = document.getElementById('add-student-form');
-    if (addStudentForm) {
-        addStudentForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            studentModule.addStudent();
+    document.getElementById('add-student-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        addStudent();
+    });
+
+    // Инициализация сортировки
+    document.querySelectorAll('[data-sort]').forEach(header => {
+        header.addEventListener('click', (e) => {
+            const column = e.target.closest('[data-sort]').dataset.sort;
+            sortTable(column);
         });
-    }
+    });
 
-    // Поиск студентов
-    const searchInput = document.getElementById('search');
-    if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                studentModule.searchStudents(e.target.value);
-            }, 300);
-        });
-    }
+    // Кнопка добавления оценки
+    document.getElementById('add-grade-btn').addEventListener('click', addGrade);
 
-    // Модальное окно
-    const modal = document.getElementById('student-modal');
-    if (modal) {
-        // Закрытие по крестику
-        const closeBtn = modal.querySelector('.close');
-        if (closeBtn) {
-            closeBtn.onclick = utils.closeModal;
-        }
-
-        // Закрытие по клику вне модального окна
-        window.onclick = (event) => {
-            if (event.target === modal) {
-                utils.closeModal();
-            }
-        };
-    }
-
-    // Форма добавления оценки
-    const addGradeForm = document.getElementById('add-grade-form');
-    if (addGradeForm) {
-        addGradeForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            gradeModule.addGrade();
-        });
-    }
-
-    // Инициализация начального состояния
-    studentModule.getAllStudents();
+    // Закрытие модального окна
+    document.querySelector('.close').addEventListener('click', closeModal);
 });
 
-// Глобальные функции для обработки событий из HTML
-window.viewStudentDetails = (studentId) => gradeModule.viewStudentDetails(studentId);
-window.deleteStudent = (studentId) => studentModule.deleteStudent(studentId);
-window.editStudent = (studentId) => studentModule.editStudent(studentId);
-window.deleteGrade = (gradeId) => gradeModule.deleteGrade(gradeId);
-window.editGrade = (gradeId) => gradeModule.editGrade(gradeId);
+// Делаем функции доступными глобально для работы с существующей разметкой
+window.addStudent = addStudent;
+window.getAllStudents = getAllStudents;
+window.findStudents = findStudents;
+window.editStudent = editStudent;
+window.deleteStudent = deleteStudent;
+window.addGrade = addGrade;
+window.viewStudentDetails = viewStudentDetails;
+window.sortTable = sortTable;
+window.sortGrades = sortGrades;
+window.closeModal = closeModal;
