@@ -1,16 +1,22 @@
-export class GradeModule {
-    constructor() {
-        this.isGradeEditing = false;
-    }
+import { utils } from './utils.js';
+import { api } from './api.js';
 
-    // Метод для добавления оценки
+let isGradeEditing = false;
+
+export const gradeModule = {
     async addGrade() {
         const studentId = document.getElementById('student-id-display').innerText;
         const subject = document.getElementById('modal-subject-name').value.trim();
         const grade = document.getElementById('modal-subject-grade').value.trim();
         const date = document.getElementById('modal-subject-date').value;
 
-        if (!this.validateGradeInputs({ subject, grade, date })) {
+        if (!subject || !grade || !date) {
+            alert('Все поля должны быть заполнены');
+            return;
+        }
+
+        if (!utils.validateGrade(grade)) {
+            alert('Оценка должна быть числом от 0 до 5');
             return;
         }
 
@@ -22,94 +28,89 @@ export class GradeModule {
                 grade: parseInt(grade),
                 date: date
             });
-            alert('Оценка успешно добавлена');
-            this.clearGradeInputs();
+            this.clearGradeForm();
             await this.viewStudentDetails(studentId);
         } catch (error) {
-            console.error('Ошибка при добавлении оценки:', error);
+            console.error('Ошибка:', error);
             alert('Не удалось добавить оценку');
         } finally {
             utils.hideLoader();
         }
-    }
+    },
 
-    // Метод для сохранения изменений оценки
-    async saveGradeChanges(gradeId) {
-        const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
-        if (!row) {
-            alert('Строка не найдена');
-            this.isGradeEditing = false;
-            return;
-        }
-
-        const subjectInput = row.querySelector('.edit-subject');
-        const dateInput = row.querySelector('.edit-date');
-        const gradeInput = row.querySelector('.edit-grade');
-
-        const subject = subjectInput.value.trim();
-        const date = dateInput.value;
-        const grade = parseInt(gradeInput.value);
-
-        if (!this.validateGradeInputs({ subject, grade, date })) {
-            return;
-        }
-
-        try {
-            utils.showLoader();
-            await api.updateGrade(gradeId, {
-                subject_name: subject,
-                date: date,
-                grade: grade
-            });
-            alert('Изменения успешно сохранены');
-            row.classList.remove('editing');
-            this.isGradeEditing = false;
-            const studentId = document.getElementById('student-id-display').innerText;
-            await this.viewStudentDetails(studentId);
-        } catch (error) {
-            console.error('Ошибка при сохранении изменений:', error);
-            alert('Не удалось сохранить изменения');
-        } finally {
-            utils.hideLoader();
-            this.isGradeEditing = false;
-        }
-    }
-
-    // Валидация входных данных для оценки
-    validateGradeInputs({ subject, grade, date }) {
-        if (!subject || !date) {
-            alert('Все поля должны быть заполнены');
-            return false;
-        }
-
-        const gradeNum = parseInt(grade);
-        if (isNaN(gradeNum) || gradeNum < 0 || gradeNum > 5) {
-            alert('Оценка должна быть числом от 0 до 5');
-            return false;
-        }
-
-        return true;
-    }
-
-    // Очистка полей для добавления оценки
-    clearGradeInputs() {
+    clearGradeForm() {
         document.getElementById('modal-subject-name').value = '';
         document.getElementById('modal-subject-grade').value = '';
         document.getElementById('modal-subject-date').value = '';
-    }
+    },
 
-    // Просмотр информации о студенте
     async viewStudentDetails(studentId) {
         try {
             utils.showLoader();
-            const data = await api.getStudentDetails(studentId);
-            // Логика отображения данных студента
-            console.log('Данные студента:', data);
+            const data = await api.getGrades(studentId);
+            this.displayGrades(data, studentId);
         } catch (error) {
-            console.error('Ошибка при загрузке данных студента:', error);
-            alert('Не удалось загрузить информацию о студенте');
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при загрузке оценок студента');
         } finally {
             utils.hideLoader();
         }
+    },
+
+    displayGrades(data, studentId) {
+        document.getElementById('student-id-display').innerText = studentId;
+        const gradesTableBody = document.querySelector('#grades-table tbody');
+        gradesTableBody.innerHTML = '';
+
+        if (!data.grades || data.grades.length === 0) {
+            this.displayEmptyGradesMessage(gradesTableBody);
+            return;
+        }
+
+        data.grades.forEach(grade => {
+            const row = gradesTableBody.insertRow();
+            row.setAttribute('data-grade-id', grade.id);
+            row.innerHTML = this.createGradeRow(grade);
+        });
+
+        this.updateAverageGrade(data.grades);
+        document.getElementById('student-modal').style.display = 'block';
+    },
+
+    createGradeRow(grade) {
+        return `
+            <td class="subject-cell">${grade.subject_name}</td>
+            <td class="grade-id-cell">${grade.id}</td>
+            <td class="date-cell">${grade.date || 'Не указано'}</td>
+            <td class="grade-cell">${grade.grade}</td>
+            <td class="grade-action-cell">
+                <button onclick="editGrade('${grade.id}')">Редактировать</button>
+                <button onclick="deleteGrade('${grade.id}')">Удалить</button>
+            </td>`;
+    },
+
+    displayEmptyGradesMessage(tableBody) {
+        const row = tableBody.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 5;
+        cell.textContent = 'Оценки отсутствуют';
+        cell.style.textAlign = 'center';
+    },
+
+    updateAverageGrade(grades) {
+        const average = grades.reduce((sum, grade) => sum + grade.grade, 0) / grades.length;
+        const averageDisplay = document.getElementById('average-grade-display') 
+            || this.createAverageGradeElement();
+        averageDisplay.textContent = `Средний балл: ${average.toFixed(2)}`;
+    },
+
+    createAverageGradeElement() {
+        const averageDiv = document.createElement('div');
+        averageDiv.id = 'average-grade-display';
+        averageDiv.className = 'average-grade';
+        document.getElementById('student-modal')
+            .querySelector('.modal-content')
+            .appendChild(averageDiv);
+        return averageDiv;
     }
-}
+};
