@@ -5,39 +5,46 @@ import { validators } from './validators.js';
 export let isEditing = false;
 
 export async function addStudent() {
-    const nameInput = document.getElementById('name-input');
-    const surnameInput = document.getElementById('surname-input');
-    const studentIdInput = document.getElementById('student-id-input');
+   const nameInput = document.getElementById('name-input');
+   const surnameInput = document.getElementById('surname-input');
+   const studentIdInput = document.getElementById('student-id-input');
 
-    const name = nameInput.value.trim();
-    const surname = surnameInput.value.trim();
-    const studentId = studentIdInput.value.trim();
+   const name = nameInput.value.trim();
+   const surname = surnameInput.value.trim();
+   const studentId = studentIdInput.value.trim();
 
-    try {
-        validators.validateName(name, surname);
-        validators.validateStudentId(studentId);
+   if (!validators.validateName(name, surname)) {
+       alert('Invalid name format');
+       return;
+   }
 
-        showLoader();
-        const response = await fetch('/add_student', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name, surname, student_id: studentId})
-        });
+   if (!validators.validateStudentId(studentId)) {
+       alert('Invalid student ID format');
+       return;
+   }
 
-        if (!response.ok) throw new Error('Server error');
-        const data = await response.json();
+   try {
+       showLoader();
+       const response = await fetch('/add_student', {
+           method: 'POST',
+           headers: {'Content-Type': 'application/json'},
+           body: JSON.stringify({name, surname, student_id: studentId})
+       });
 
-        alert(data.message || 'Student added successfully.');
-        nameInput.value = '';
-        surnameInput.value = '';
-        studentIdInput.value = '';
-        await getAllStudents();
-    } catch (error) {
-        console.error('Error:', error);
-        alert(error.message || 'An error occurred while adding the student.');
-    } finally {
-        hideLoader();
-    }
+       if (!response.ok) throw new Error('Server error');
+       const data = await response.json();
+
+       alert(data.message || 'Student added successfully.');
+       nameInput.value = '';
+       surnameInput.value = '';
+       studentIdInput.value = '';
+       await getAllStudents();
+   } catch (error) {
+       console.error('Error:', error);
+       alert(error.message || 'An error occurred while adding the student.');
+   } finally {
+       hideLoader();
+   }
 }
 
 export async function getAllStudents() {
@@ -120,6 +127,29 @@ export async function editStudent(studentId) {
     actionButtons.querySelector('.save-btn').onclick = () => saveStudentChanges(studentId, row);
     actionButtons.querySelector('.cancel-btn').onclick = () => cancelEdit(studentId, row, nameValue, surnameValue);
 }
+
+export function cancelEdit(studentId, row, originalName, originalSurname) {
+    if (!row) return;
+
+    const nameCell = row.querySelector('.name-cell');
+    const surnameCell = row.querySelector('.surname-cell');
+    const actionButtons = row.querySelector('.action-buttons');
+
+    // Restore original values
+    nameCell.textContent = originalName;
+    surnameCell.textContent = originalSurname;
+
+    // Reset action buttons
+    actionButtons.innerHTML = `
+        <button onclick="editStudent('${studentId}')">Edit</button>
+        <button onclick="deleteStudent('${studentId}')">Delete</button>
+    `;
+
+    // Reset styling
+    row.classList.remove('editing');
+    isEditing = false;
+}
+
 
 function createInput(value, className) {
     const input = document.createElement('input');
