@@ -1,16 +1,16 @@
-import { showLoader, hideLoader, closeModal } from './utils3.js';
-import { 
-    addStudent, 
-    getAllStudents, 
-    findStudents, 
-    editStudent, 
-    deleteStudent 
+import {  closeModal } from './utils.js';
+import {
+    addStudent,
+    getAllStudents,
+    findStudents,
+    editStudent,
+    deleteStudent
 } from './studentService.js';
-import { 
-    addGrade, 
-    viewStudentDetails 
+import {
+    addGrade,
+    viewStudentDetails, editGrade, deleteGrade, saveGradeChanges, calculateAverageGrade
 } from './gradeService.js';
-import { sortTable, sortGrades } from './sortService.js';
+import { sortTable, sortGrades} from './sortService.js';
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
@@ -53,3 +53,7 @@ window.viewStudentDetails = viewStudentDetails;
 window.sortTable = sortTable;
 window.sortGrades = sortGrades;
 window.closeModal = closeModal;
+window.editGrade = editGrade;
+window.deleteGrade = deleteGrade;
+window.saveGradeChanges = saveGradeChanges;
+window.calculateAverageGrade = calculateAverageGrade;

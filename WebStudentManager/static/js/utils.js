@@ -5,7 +5,6 @@ export function showLoader() {
 export function hideLoader() {
     document.body.style.cursor = 'default';
 }
-
 export function closeModal() {
     const modal = document.getElementById('student-modal');
     modal.style.display = 'none';
@@ -18,4 +17,3 @@ export function closeModal() {
         saveGradeButton.onclick = null;
     }
 }
-

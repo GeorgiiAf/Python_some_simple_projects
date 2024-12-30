@@ -1,98 +1,98 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>Управление студентами</title>
+    <title>Student Management</title>
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
-<h1>Управление студентами</h1>
+<h1>Student Management</h1>
 
-<!-- Раздел для поиска студентов -->
+<!-- Section for searching students -->
 <div id="search-section">
-    <h2>Поиск студентов</h2>
-    <input type="text" id="search" placeholder="Введите имя или фамилию">
-    <button class="search-btn">Найти</button>
-    <button class="refresh-btn">Показать всех</button>
+    <h2>Search Students</h2>
+    <input type="text" id="search" placeholder="Enter first or last name">
+    <button class="search-btn">Search</button>
+    <button class="refresh-btn">Show All</button>
 </div>
 
 <hr>
 
-<!-- Список студентов -->
+<!-- Student list -->
 <div id="student-list">
-    <h2>Список студентов</h2>
+    <h2>Student List</h2>
     <table id="students-table">
         <thead>
         <tr>
             <th>ID</th>
             <th data-sort="name">
-                Имя <span class="sort-icon">↕</span>
+                First Name <span class="sort-icon">↕</span>
             </th>
             <th data-sort="surname">
-                Фамилия <span class="sort-icon">↕</span>
+                Last Name <span class="sort-icon">↕</span>
             </th>
-            <th>Действия</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
-        <!-- Данные о студентах будут добавляться динамически -->
+        <!-- Student data will be dynamically added here -->
         </tbody>
     </table>
 </div>
 
 <hr>
 
-<!-- Модальное окно для отображения зачётной книжки -->
+<!-- Modal window for displaying student record book -->
 <div id="student-modal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>Зачётная книжка студента: <span id="student-id-display"></span></h2>
+            <h2>Student Record Book: <span id="student-id-display"></span></h2>
             <span class="close">&times;</span>
         </div>
         <div class="modal-footer">
-            <button id="save-grade-btn" style="display: none;">Сохранить изменения</button>
+            <button id="save-grade-btn" style="display: none;">Save Changes</button>
         </div>
         <div class="modal-body">
             <table id="grades-table">
                 <thead>
                 <tr>
-                    <th data-sort="subject">Предмет</th>
+                    <th data-sort="subject">Subject</th>
                     <th>ID</th>
-                    <th data-sort="date">Дата</th>
-                    <th data-sort="grade">Оценка</th>
-                    <th>Действия</th>
+                    <th data-sort="date">Date</th>
+                    <th data-sort="grade">Grade</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
-                <!-- Оценки студента будут вставлены динамически -->
+                <!-- Student grades will be dynamically inserted here -->
                 </tbody>
             </table>
-            <!-- Форма для добавления новой оценки -->
-            <h3>Добавить оценку</h3>
+            <!-- Form for adding a new grade -->
+            <h3>Add Grade</h3>
             <div class="grade-form">
-                <input type="text" id="modal-subject-name" placeholder="Название предмета" required>
-                <input type="number" id="modal-subject-grade" placeholder="Оценка" min="1" max="5" required>
+                <input type="text" id="modal-subject-name" placeholder="Subject Name" required>
+                <input type="number" id="modal-subject-grade" placeholder="Grade" min="1" max="5" required>
                 <input type="date" id="modal-subject-date" required>
-                <button id="add-grade-btn">Добавить</button>
+                <button id="add-grade-btn">Add</button>
             </div>
         </div>
         <div class="modal-footer">
-            <!-- Дополнительные кнопки могут быть добавлены здесь -->
+            <!-- Additional buttons can be added here -->
         </div>
     </div>
 </div>
 
 <hr>
 
-<!-- Раздел для добавления нового студента -->
+<!-- Section for adding a new student -->
 <div id="add-student-section">
-    <h2>Добавить студента</h2>
+    <h2>Add Student</h2>
     <form id="add-student-form">
-        <input type="text" id="name-input" placeholder="Имя" required>
-        <input type="text" id="surname-input" placeholder="Фамилия" required>
-        <input type="text" id="student-id-input" placeholder="Номер зачетной книжки" required>
-        <button type="submit">Добавить</button>
+        <input type="text" id="name-input" placeholder="First Name" required>
+        <input type="text" id="surname-input" placeholder="Last Name" required>
+        <input type="text" id="student-id-input" placeholder="Record Book Number" required>
+        <button type="submit">Add</button>
     </form>
 </div>
 

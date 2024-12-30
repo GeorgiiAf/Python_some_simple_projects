@@ -1,4 +1,4 @@
-import { showLoader, hideLoader } from './utils3.js';
+import { showLoader, hideLoader } from './utils.js';
 import { updateStudentsTable } from './tableService.js';
 import { validators } from './validators.js';
 
@@ -24,17 +24,17 @@ export async function addStudent() {
             body: JSON.stringify({name, surname, student_id: studentId})
         });
 
-        if (!response.ok) throw new Error('Ошибка сервера');
+        if (!response.ok) throw new Error('Server error');
         const data = await response.json();
 
-        alert(data.message || 'Студент успешно добавлен.');
+        alert(data.message || 'Student added successfully.');
         nameInput.value = '';
         surnameInput.value = '';
         studentIdInput.value = '';
         await getAllStudents();
     } catch (error) {
-        console.error('Ошибка:', error);
-        alert(error.message || 'Произошла ошибка при добавлении студента.');
+        console.error('Error:', error);
+        alert(error.message || 'An error occurred while adding the student.');
     } finally {
         hideLoader();
     }
@@ -44,13 +44,13 @@ export async function getAllStudents() {
     try {
         showLoader();
         const response = await fetch('/get_students');
-        if (!response.ok) throw new Error('Ошибка при загрузке студентов');
+        if (!response.ok) throw new Error('Error loading students');
 
         const data = await response.json();
         updateStudentsTable(data);
     } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Не удалось загрузить список студентов.');
+        console.error('Error:', error);
+        alert('Could not load the list of students.');
     } finally {
         hideLoader();
     }
@@ -67,13 +67,13 @@ export async function findStudents() {
     try {
         showLoader();
         const response = await fetch(`/search_students?query=${encodeURIComponent(searchTerm)}`);
-        if (!response.ok) throw new Error('Ошибка поиска');
+        if (!response.ok) throw new Error('Search error');
 
         const data = await response.json();
         updateStudentsTable(data);
     } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Не удалось выполнить поиск студентов.');
+        console.error('Error:', error);
+        alert('Could not perform student search.');
     } finally {
         hideLoader();
     }
@@ -81,14 +81,14 @@ export async function findStudents() {
 
 export async function editStudent(studentId) {
     if (isEditing) {
-        alert('Пожалуйста, завершите текущее редактирование.');
+        alert('Please finish the current edit session.');
         return;
     }
 
     isEditing = true;
     const row = document.querySelector(`tr[data-id="${studentId}"]`);
     if (!row) {
-        console.error('Студент не найден.');
+        console.error('Student not found.');
         isEditing = false;
         return;
     }
@@ -100,7 +100,7 @@ export async function editStudent(studentId) {
     const nameValue = nameCell.textContent.trim();
     const surnameValue = surnameCell.textContent.trim();
 
-    // Создаем поля ввода
+    // Create input fields
     const nameInput = createInput(nameValue, 'edit-input');
     const surnameInput = createInput(surnameValue, 'edit-input');
 
@@ -109,14 +109,14 @@ export async function editStudent(studentId) {
     nameCell.appendChild(nameInput);
     surnameCell.appendChild(surnameInput);
 
-    // Добавляем кнопки действий
+    // Add action buttons
     const actionButtons = row.querySelector('.action-buttons');
     actionButtons.innerHTML = `
-        <button class="save-btn">Сохранить</button>
-        <button class="cancel-btn">Отмена</button>
+        <button class="save-btn">Save</button>
+        <button class="cancel-btn">Cancel</button>
     `;
 
-    // Назначаем обработчики
+    // Assign event listeners
     actionButtons.querySelector('.save-btn').onclick = () => saveStudentChanges(studentId, row);
     actionButtons.querySelector('.cancel-btn').onclick = () => cancelEdit(studentId, row, nameValue, surnameValue);
 }
@@ -130,7 +130,7 @@ function createInput(value, className) {
 }
 
 export async function deleteStudent(studentId) {
-    if (!confirm('Вы уверены, что хотите удалить этого студента?')) {
+    if (!confirm('Are you sure you want to delete this student?')) {
         return;
     }
 
@@ -140,14 +140,14 @@ export async function deleteStudent(studentId) {
             method: 'DELETE'
         });
 
-        if (!response.ok) throw new Error('Ошибка при удалении студента');
+        if (!response.ok) throw new Error('Error deleting student');
 
         const data = await response.json();
-        alert(data.message || 'Студент успешно удален.');
+        alert(data.message || 'Student deleted successfully.');
         await getAllStudents();
     } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Не удалось удалить студента.');
+        console.error('Error:', error);
+        alert('Could not delete the student.');
     } finally {
         hideLoader();
     }
@@ -161,7 +161,7 @@ async function saveStudentChanges(studentId, row) {
     const newSurname = surnameInput.value.trim();
 
     if (!newName || !newSurname) {
-        alert('Имя и фамилия не могут быть пустыми.');
+        alert('First and last names cannot be empty.');
         return;
     }
 
@@ -173,13 +173,13 @@ async function saveStudentChanges(studentId, row) {
             body: JSON.stringify({name: newName, surname: newSurname})
         });
 
-        if (!response.ok) throw new Error('Ошибка при сохранении изменений');
+        if (!response.ok) throw new Error('Error saving changes');
 
         await getAllStudents();
         isEditing = false;
     } catch (error) {
-        console.error('Ошибка:', error);
-        alert('Не удалось сохранить изменения.');
+        console.error('Error:', error);
+        alert('Could not save changes.');
     } finally {
         hideLoader();
     }

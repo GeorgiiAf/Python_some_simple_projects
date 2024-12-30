@@ -4,23 +4,23 @@ export const validators = {
 
     validateName(name, surname) {
         if (!name || !surname) {
-            throw new Error('Все поля должны быть заполнены.');
+            throw new Error('All fields must be filled.');
         }
         if (!this.nameRegex.test(name) || !this.nameRegex.test(surname)) {
-            throw new Error('Имя и фамилия должны содержать только буквы, дефис и пробелы.');
+            throw new Error('First and last names must contain only letters, hyphens, and spaces.');
         }
     },
 
     validateStudentId(studentId) {
         if (!this.studentIdRegex.test(studentId)) {
-            throw new Error('Номер зачетной книжки должен состоять из 8 цифр.');
+            throw new Error('The record book number must consist of 8 digits.');
         }
     },
 
     validateGrade(grade) {
         const gradeNum = parseInt(grade);
         if (isNaN(gradeNum) || gradeNum < 0 || gradeNum > 5) {
-            throw new Error('Оценка должна быть числом от 0 до 5');
+            throw new Error('The grade must be a number between 0 and 5.');
         }
         return gradeNum;
     }

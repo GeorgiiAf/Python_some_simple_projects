@@ -6,7 +6,7 @@ export function updateStudentsTable(data) {
         const row = tableBody.insertRow();
         const cell = row.insertCell();
         cell.colSpan = 4;
-        cell.textContent = 'Студенты не найдены.';
+        cell.textContent = 'No students found.';
         cell.style.textAlign = 'center';
         return;
     }
@@ -20,9 +20,38 @@ export function updateStudentsTable(data) {
             <td class="surname-cell">${student.surname}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="edit-btn" onclick="editStudent('${student.student_id}')">Редактировать</button>
-                    <button class="delete-btn" onclick="deleteStudent('${student.student_id}')">Удалить</button>
+                    <button class="edit-btn" onclick="editStudent('${student.student_id}')">Edit</button>
+                    <button class="delete-btn" onclick="deleteStudent('${student.student_id}')">Delete</button>
                 </div>
             </td>`;
     });
+}
+
+export function updateGradesTable(grades, studentId) {
+    document.getElementById('student-id-display').innerText = studentId;
+
+    const gradesTableBody = document.querySelector('#grades-table tbody');
+    gradesTableBody.innerHTML = ''; // Clear the table before updating.
+
+    if (!grades || grades.length === 0) {
+        const row = gradesTableBody.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 5;
+        cell.textContent = 'No grades available';
+        cell.style.textAlign = 'center';
+    } else {
+        grades.forEach(grade => {
+            const row = gradesTableBody.insertRow();
+            row.setAttribute('data-grade-id', grade.id);
+            row.innerHTML = `
+                <td class="subject-cell">${grade.subject_name}</td>
+                <td class="grade-id-cell">${grade.id}</td>
+                <td class="date-cell">${grade.date || 'Not specified'}</td>
+                <td class="grade-cell">${grade.grade}</td>
+                <td class="grade-action-cell">
+                    <button onclick="editGrade('${grade.id}')">Edit</button>
+                    <button onclick="deleteGrade('${grade.id}')">Delete</button>
+                </td>`;
+        });
+    }
 }
