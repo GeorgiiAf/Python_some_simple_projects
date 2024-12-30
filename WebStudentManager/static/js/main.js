@@ -1,60 +1,62 @@
-import {  closeModal } from './utils.js';
-import {
-    addStudent,
-    getAllStudents,
-    findStudents,
-    editStudent,
-    deleteStudent
-} from './studentService.js';
-import {
-    addGrade,
-    viewStudentDetails, editGrade, deleteGrade, saveGradeChanges, calculateAverageGrade, cancelGradeEdit
-} from './gradeService.js';
-import { sortTable, sortGrades} from './sortService.js';
+import { closeModal } from './utils.js';
+import * as studentService from './studentService.js';
+import * as gradeService from './gradeService.js';
+import * as sortService from './sortService.js';
 
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', () => {
-    // Загрузка начального списка студентов
+class AppEventHandler {
+    constructor() {
+        this.initializeEventListeners();
+        this.exposeRequiredGlobals();
+    }
 
-    // Назначаем обработчики событий
-    document.querySelector('.search-btn').addEventListener('click', findStudents);
-    document.querySelector('.refresh-btn').addEventListener('click', getAllStudents);
-    // Форма добавления студента
-    document.getElementById('add-student-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        addStudent();
-    });
-
-    // Инициализация сортировки
-    document.querySelectorAll('[data-sort]').forEach(header => {
-        header.addEventListener('click', (e) => {
-            const column = e.target.closest('[data-sort]').dataset.sort;
-            sortTable(column);
+    initializeEventListeners() {
+        document.addEventListener('DOMContentLoaded', () => {
+            this.setupSearchHandlers();
+            this.setupStudentFormHandler();
+            this.setupSortingHandlers();
+            this.setupGradeHandlers();
+            this.setupModalHandlers();
         });
-    });
+    }
 
-    // Кнопка добавления оценки
-    document.getElementById('add-grade-btn').addEventListener('click', addGrade);
+    setupSearchHandlers() {
+        document.querySelector('.search-btn')?.addEventListener('click', studentService.findStudents);
+        document.querySelector('.refresh-btn')?.addEventListener('click', studentService.getAllStudents);
+    }
 
-    // Закрытие модального окна
-    document.querySelector('.close').addEventListener('click', closeModal);
-});
+    setupStudentFormHandler() {
+        document.getElementById('add-student-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            studentService.addStudent();
+        });
+    }
 
+    setupSortingHandlers() {
+        document.querySelectorAll('[data-sort]').forEach(header => {
+            header.addEventListener('click', (e) => {
+                const column = e.target.closest('[data-sort]').dataset.sort;
+                sortService.sortTable(column);
+            });
+        });
+    }
 
+    setupGradeHandlers() {
+        document.getElementById('add-grade-btn')?.addEventListener('click', gradeService.addGrade);
+    }
 
-// Делаем функции доступными глобально для работы с существующей разметкой
-window.addStudent = addStudent;
-window.getAllStudents = getAllStudents;
-window.findStudents = findStudents;
-window.editStudent = editStudent;
-window.deleteStudent = deleteStudent;
-window.addGrade = addGrade;
-window.viewStudentDetails = viewStudentDetails;
-window.sortTable = sortTable;
-window.sortGrades = sortGrades;
-window.closeModal = closeModal;
-window.editGrade = editGrade;
-window.deleteGrade = deleteGrade;
-window.saveGradeChanges = saveGradeChanges;
-window.calculateAverageGrade = calculateAverageGrade;
-window.cancelGradeEdit = cancelGradeEdit;
+    setupModalHandlers() {
+        document.querySelector('.close')?.addEventListener('click', closeModal);
+    }
+
+    exposeRequiredGlobals() {
+        // Temporary solution for legacy HTML onclick handlers
+        Object.assign(window, {
+            ...studentService,
+            ...gradeService,
+            ...sortService,
+            closeModal
+        });
+    }
+}
+
+new AppEventHandler();
