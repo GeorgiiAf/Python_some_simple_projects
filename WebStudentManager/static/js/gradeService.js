@@ -183,34 +183,46 @@ export async function viewStudentDetails(studentId) {
 
         const response = await fetch(`/get_grades/${studentId}`);
         if (!response.ok) {
-            throw new Error('Ошибка при загрузке оценок');
+            throw new Error('Error loading grades');
         }
 
         const data = await response.json();
 
-        // Обновляем таблицу оценок через функцию из tableService
+        // Update grades table using the function from tableService
         updateGradesTable(data.grades, studentId);
 
-        // Отображаем модальное окно
+        const averageGrade = calculateAverageGrade();
+        const averageDisplay = document.getElementById('average-grade-display');
+        if (averageDisplay) {
+            averageDisplay.textContent = `Average grade: ${averageGrade}`;
+        } else {
+            const averageDiv = document.createElement('div');
+            averageDiv.id = 'average-grade-display';
+            averageDiv.className = 'average-grade';
+            averageDiv.textContent = `Average grade: ${averageGrade}`;
+            document.getElementById('student-modal').querySelector('.modal-content').appendChild(averageDiv);
+        }
+
+        // Display the modal window
         const modal = document.getElementById('student-modal');
         modal.style.display = 'block';
 
-        // Добавляем обработчик для закрытия модального окна
+        // Add event handler to close the modal window
         window.onclick = function (event) {
             if (event.target === modal) {
                 closeModal();
             }
         };
     } catch (error) {
-        console.error('Ошибка при загрузке оценок:', error);
-        alert('Произошла ошибка при загрузке оценок студента');
+        console.error('Error loading grades:', error);
+        alert('An error occurred while loading student grades');
     } finally {
         hideLoader();
     }
 }
 
 
-export async function calculateAverageGrade() {
+export function calculateAverageGrade() {
     const grades = Array.from(document.querySelectorAll('#grades-table .grade-cell'))
         .map(cell => Number(cell.textContent))
         .filter(grade => !isNaN(grade));
@@ -218,5 +230,5 @@ export async function calculateAverageGrade() {
     if (grades.length === 0) return 0;
 
     const sum = grades.reduce((acc, curr) => acc + curr, 0);
-    return (sum / grades.length).toFixed(2);
+    return (sum / grades.length).toFixed(2);  // Возвращаем средний балл с точностью до двух знаков
 }

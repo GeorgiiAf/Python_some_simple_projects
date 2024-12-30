@@ -15,12 +15,10 @@ import { sortTable, sortGrades} from './sortService.js';
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', () => {
     // Загрузка начального списка студентов
-    getAllStudents();
 
     // Назначаем обработчики событий
     document.querySelector('.search-btn').addEventListener('click', findStudents);
     document.querySelector('.refresh-btn').addEventListener('click', getAllStudents);
-
     // Форма добавления студента
     document.getElementById('add-student-form').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -41,6 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Закрытие модального окна
     document.querySelector('.close').addEventListener('click', closeModal);
 });
+
+
 
 // Делаем функции доступными глобально для работы с существующей разметкой
 window.addStudent = addStudent;
