@@ -8,7 +8,7 @@ import {
 } from './studentService.js';
 import {
     addGrade,
-    viewStudentDetails, editGrade, deleteGrade, saveGradeChanges, calculateAverageGrade
+    viewStudentDetails, editGrade, deleteGrade, saveGradeChanges, calculateAverageGrade, cancelGradeEdit
 } from './gradeService.js';
 import { sortTable, sortGrades} from './sortService.js';
 
@@ -57,3 +57,4 @@ window.editGrade = editGrade;
 window.deleteGrade = deleteGrade;
 window.saveGradeChanges = saveGradeChanges;
 window.calculateAverageGrade = calculateAverageGrade;
+window.cancelGradeEdit = cancelGradeEdit;

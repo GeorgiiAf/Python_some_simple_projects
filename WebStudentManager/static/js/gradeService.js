@@ -11,11 +11,10 @@ export async function addGrade() {
     const grade = document.getElementById('modal-subject-grade').value.trim();
     const date = document.getElementById('modal-subject-date').value;
 
-    if (!subject || !grade || !date) {
-        alert('Все поля должны быть заполнены');
+     if (!subject || !grade || !date) {
+        alert('All fields must be filled in');
         return;
     }
-
     try {
         const gradeNum = validators.validateGrade(grade);
 
@@ -31,12 +30,12 @@ export async function addGrade() {
             })
         });
 
-        if (!response.ok) throw new Error('Ошибка при добавлении оценки');
+        if (!response.ok) throw new Error('Error adding the grade');
 
         const data = await response.json();
-        alert(data.message || 'Оценка успешно добавлена');
+        alert(data.message || 'Grade added successfully');
 
-        // Очищаем поля
+        // Clear input fields
         document.getElementById('modal-subject-name').value = '';
         document.getElementById('modal-subject-grade').value = '';
         document.getElementById('modal-subject-date').value = '';
@@ -53,7 +52,7 @@ export async function addGrade() {
 
 export async function editGrade(gradeId) {
     if (isGradeEditing) {
-        alert('Пожалуйста, завершите текущее редактирование.');
+        alert('Please finish the current editing first.');
         return;
     }
 
@@ -61,12 +60,12 @@ export async function editGrade(gradeId) {
     showLoader();
     fetch(`/get_grade/${gradeId}`)
         .then(response => {
-            if (!response.ok) throw new Error('Ошибка при загрузке данных');
+            if (!response.ok) throw new Error('Error loading grade data');
             return response.json();
         })
         .then(grade => {
             const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
-            if (!row) throw new Error('Строка не найдена');
+            if (!row) throw new Error('Row not found');
 
             row.classList.add('editing');
             const cells = row.querySelectorAll('td');
@@ -75,17 +74,18 @@ export async function editGrade(gradeId) {
             cells[2].innerHTML = `<input type="date" class="edit-date" value="${grade.date}">`;
             cells[3].innerHTML = `<input type="number" class="edit-grade" value="${grade.grade}" min="0" max="5">`;
             cells[4].innerHTML = `
-                <button class="save-grade-btn" onclick="saveGradeChanges('${gradeId}')">Сохранить</button>
-                <button class="cancel-grade-btn" onclick="cancelGradeEdit('${gradeId}')">Отмена</button>
+                <button class="save-grade-btn" onclick="saveGradeChanges('${gradeId}')">Save</button>
+                <button class="cancel-grade-btn" onclick="cancelGradeEdit('${gradeId}')">Cancel</button>
             `;
         })
         .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Не удалось загрузить данные оценки');
+            console.error('Error:', error);
+            alert('Failed to load grade data');
             isGradeEditing = false;
         })
         .finally(hideLoader);
 }
+
 
 export async function cancelGradeEdit(gradeId) {
     const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
@@ -98,7 +98,7 @@ export async function cancelGradeEdit(gradeId) {
 }
 
 export async function deleteGrade(gradeId) {
-    if (!confirm('Вы уверены, что хотите удалить эту оценку?')) {
+    if (!confirm('Are you sure you want to delete this grade?')) {
         return;
     }
 
@@ -107,7 +107,7 @@ export async function deleteGrade(gradeId) {
         method: 'DELETE'
     })
         .then(response => {
-            if (!response.ok) throw new Error('Ошибка при удалении оценки');
+            if (!response.ok) throw new Error('Error deleting grade');
             return response.json();
         })
         .then(() => {
@@ -115,8 +115,8 @@ export async function deleteGrade(gradeId) {
             viewStudentDetails(studentId);
         })
         .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Не удалось удалить оценку');
+            console.error('Error:', error);
+            alert('Failed to delete grade');
         })
         .finally(hideLoader);
 }
@@ -124,7 +124,7 @@ export async function deleteGrade(gradeId) {
 export async function saveGradeChanges(gradeId) {
     const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
     if (!row) {
-        alert('Строка не найдена');
+        alert('Row not found');
         isGradeEditing = false;
         return;
     }
@@ -138,12 +138,12 @@ export async function saveGradeChanges(gradeId) {
     const grade = parseInt(gradeInput.value);
 
     if (!subject || !date) {
-        alert('Все поля должны быть заполнены');
+        alert('All fields must be filled in');
         return;
     }
 
     if (isNaN(grade) || grade < 0 || grade > 5) {
-        alert('Оценка должна быть числом от 0 до 5');
+        alert('Grade must be a number between 0 and 5');
         return;
     }
 
@@ -158,7 +158,7 @@ export async function saveGradeChanges(gradeId) {
         })
     })
         .then(response => {
-            if (!response.ok) throw new Error('Ошибка при сохранении');
+            if (!response.ok) throw new Error('Error saving changes');
             return response.json();
         })
         .then(() => {
@@ -168,14 +168,15 @@ export async function saveGradeChanges(gradeId) {
             viewStudentDetails(studentId);
         })
         .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Не удалось сохранить изменения');
+            console.error('Error:', error);
+            alert('Failed to save changes');
         })
         .finally(() => {
             hideLoader();
             isGradeEditing = false;
         });
 }
+
 
 export async function viewStudentDetails(studentId) {
     try {
