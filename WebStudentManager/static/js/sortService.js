@@ -3,74 +3,63 @@ export let currentSort = {
     descending: false
 };
 
-export function sortTable(column) {
-    const table = document.querySelector("#students-table tbody");
-    const rows = Array.from(table.rows);
+function updateSortIcons(column) {
+    document.querySelectorAll('[data-sort]').forEach(header => {
+        const icon = header.querySelector('.sort-icon') || createSortIcon(header);
 
-    if (currentSort.column === column) {
-        currentSort.descending = !currentSort.descending;
-    } else {
-        currentSort.column = column;
-        currentSort.descending = false;
-    }
-
-    rows.sort((a, b) => {
-        let valA, valB;
-
-        switch (column) {
-            case 'name':
-                valA = a.querySelector('.name-cell').textContent.toLowerCase();
-                valB = b.querySelector('.name-cell').textContent.toLowerCase();
-                break;
-            case 'surname':
-                valA = a.querySelector('.surname-cell').textContent.toLowerCase();
-                valB = b.querySelector('.surname-cell').textContent.toLowerCase();
-                break;
-            default:
-                return 0;
+        if (header.dataset.sort === column) {
+            icon.textContent = currentSort.descending ? '▼' : '▲';
+            icon.classList.add('active');
+        } else {
+            icon.textContent = '▲';
+            icon.classList.remove('active');
         }
-
-        return currentSort.descending ?
-            (valA > valB ? -1 : 1) :
-            (valA > valB ? 1 : -1);
     });
+}
 
-    table.innerHTML = '';
-    rows.forEach(row => table.appendChild(row));
+function createSortIcon(header) {
+    const icon = document.createElement('span');
+    icon.className = 'sort-icon';
+    icon.textContent = '▲';
+    header.appendChild(icon);
+    return icon;
+}
+
+function getSortValue(row, column, type = 'text') {
+    const cell = row.querySelector(`.${column}-cell`);
+    const value = cell?.textContent || '';
+
+    switch (type) {
+        case 'date': return new Date(value);
+        case 'number': return Number(value);
+        default: return value.toLowerCase();
+    }
+}
+
+function sortRows(rows, column, type = 'text') {
+    return rows.sort((a, b) => {
+        const valA = getSortValue(a, column, type);
+        const valB = getSortValue(b, column, type);
+
+        return currentSort.descending
+            ? (valA > valB ? -1 : 1)
+            : (valA > valB ? 1 : -1);
+    });
+}
+
+export function sortTable(column) {
+    const tbody = document.querySelector("#students-table tbody");
+    currentSort.descending = currentSort.column === column ? !currentSort.descending : false;
+    currentSort.column = column;
+
+    const rows = sortRows(Array.from(tbody.rows), column);
+    tbody.replaceChildren(...rows);
     updateSortIcons(column);
 }
 
 export function sortGrades(column) {
-    const tableBody = document.querySelector('#grades-table tbody');
-    const rows = Array.from(tableBody.rows);
-
-    rows.sort((a, b) => {
-        let valA, valB;
-
-        switch (column) {
-            case 'date':
-                valA = new Date(a.querySelector('.date-cell').textContent);
-                valB = new Date(b.querySelector('.date-cell').textContent);
-                break;
-            case 'subject':
-                valA = a.querySelector('.subject-cell').textContent.toLowerCase();
-                valB = b.querySelector('.subject-cell').textContent.toLowerCase();
-                break;
-            case 'grade':
-                valA = Number(a.querySelector('.grade-cell').textContent);
-                valB = Number(b.querySelector('.grade-cell').textContent);
-                break;
-            default:
-                return 0;
-        }
-
-        if (valA > valB) return 1;
-        if (valA < valB) return -1;
-        return 0;
-    });
-
-    while (tableBody.firstChild) {
-        tableBody.removeChild(tableBody.firstChild);
-    }
-    rows.forEach(row => tableBody.appendChild(row));
+    const tbody = document.querySelector('#grades-table tbody');
+    const type = column === 'date' ? 'date' : column === 'grade' ? 'number' : 'text';
+    const rows = sortRows(Array.from(tbody.rows), column, type);
+    tbody.replaceChildren(...rows);
 }

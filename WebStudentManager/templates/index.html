@@ -5,33 +5,33 @@
     <meta charset="UTF-8">
     <title>Student Management</title>
     <link rel="stylesheet" href="/static/css/styles.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
 </head>
 <body>
 <h1>Student Management</h1>
 
 <!-- Section for searching students -->
-<div id="search-section" class="container my-4">
+<div id="search-section">
     <h2>Search Students</h2>
-    <div class="input-group mb-3">
-        <input type="text" id="search" class="form-control" placeholder="Enter first or last name">
-        <button class="btn btn-primary search-btn">Search</button>
-        <button class="btn btn-secondary refresh-btn">Show All</button>
-    </div>
+    <input type="text" id="search" placeholder="Enter first or last name">
+    <button class="search-btn">Search</button>
+    <button class="refresh-btn">Show All</button>
 </div>
 
 <hr>
 
 <!-- Student list -->
-<div id="student-list" class="container my-4">
+<div id="student-list">
     <h2>Student List</h2>
-    <table id="students-table" class="table table-striped table-hover">
-        <thead class="table-light">
+    <table id="students-table">
+        <thead>
         <tr>
             <th>ID</th>
-            <th data-sort="name">First Name <span class="sort-icon">↕</span></th>
-            <th data-sort="surname">Last Name <span class="sort-icon">↕</span></th>
+            <th data-sort="name">
+                First Name <span class="sort-icon">↕</span>
+            </th>
+            <th data-sort="surname">
+                Last Name <span class="sort-icon">↕</span>
+            </th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -44,44 +44,41 @@
 <hr>
 
 <!-- Modal window for displaying student record book -->
-<div id="student-modal" class="modal fade" tabindex="-1" aria-labelledby="student-modal-label" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="student-modal-label">
-                    Student Record Book: <span id="student-id-display"></span>
-                </h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div id="student-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Student Record Book: <span id="student-id-display"></span></h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-footer">
+            <button id="save-grade-btn" style="display: none;">Save Changes</button>
+        </div>
+        <div class="modal-body">
+            <table id="grades-table">
+                <thead>
+                <tr>
+                    <th data-sort="subject">Subject</th>
+                    <th>ID</th>
+                    <th data-sort="date">Date</th>
+                    <th data-sort="grade">Grade</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Student grades will be dynamically inserted here -->
+                </tbody>
+            </table>
+            <!-- Form for adding a new grade -->
+            <h3>Add Grade</h3>
+            <div class="grade-form">
+                <input type="text" id="modal-subject-name" placeholder="Subject Name" required>
+                <input type="number" id="modal-subject-grade" placeholder="Grade" min="1" max="5" required>
+                <input type="date" id="modal-subject-date" required>
+                <button id="add-grade-btn">Add</button>
             </div>
-            <div class="modal-body">
-                <table id="grades-table" class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th data-sort="subject">Subject</th>
-                        <th>ID</th>
-                        <th data-sort="date">Date</th>
-                        <th data-sort="grade">Grade</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <!-- Student grades will be dynamically inserted here -->
-                    </tbody>
-                </table>
-                <h3>Add Grade</h3>
-                <div class="grade-form">
-                    <div class="mb-3">
-                        <input type="text" id="modal-subject-name" class="form-control" placeholder="Subject Name" required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="number" id="modal-subject-grade" class="form-control" placeholder="Grade" min="1" max="5" required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="date" id="modal-subject-date" class="form-control" required>
-                    </div>
-                    <button id="add-grade-btn" class="btn btn-success">Add</button>
-                </div>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <!-- Additional buttons can be added here -->
         </div>
     </div>
 </div>
@@ -89,22 +86,16 @@
 <hr>
 
 <!-- Section for adding a new student -->
-<div id="add-student-section" class="container my-4">
+<div id="add-student-section">
     <h2>Add Student</h2>
     <form id="add-student-form">
-        <div class="mb-3">
-            <input type="text" id="name-input" class="form-control" placeholder="First Name" required>
-        </div>
-        <div class="mb-3">
-            <input type="text" id="surname-input" class="form-control" placeholder="Last Name" required>
-        </div>
-        <div class="mb-3">
-            <input type="text" id="student-id-input" class="form-control" placeholder="Record Book Number" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Add</button>
+        <input type="text" id="name-input" placeholder="First Name" required>
+        <input type="text" id="surname-input" placeholder="Last Name" required>
+        <input type="text" id="student-id-input" placeholder="Record Book Number" required>
+        <button type="submit">Add</button>
     </form>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script type="module" src="/static/js/main.js"></script>
 </body>
 </html>

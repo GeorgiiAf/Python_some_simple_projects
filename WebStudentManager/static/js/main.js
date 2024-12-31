@@ -32,13 +32,22 @@ class AppEventHandler {
     }
 
     setupSortingHandlers() {
-        document.querySelectorAll('[data-sort]').forEach(header => {
-            header.addEventListener('click', (e) => {
-                const column = e.target.closest('[data-sort]').dataset.sort;
-                sortService.sortTable(column);
-            });
+    // Для таблицы студентов
+    document.querySelectorAll('#students-table [data-sort]').forEach(header => {
+        header.addEventListener('click', (e) => {
+            const column = e.target.closest('[data-sort]').dataset.sort;
+            sortService.sortTable(column);
         });
-    }
+    });
+
+    // Для таблицы оценок
+    document.querySelectorAll('#grades-table [data-sort]').forEach(header => {
+        header.addEventListener('click', (e) => {
+            const column = e.target.closest('[data-sort]').dataset.sort;
+            sortService.sortGrades(column);
+        });
+    });
+}
 
     setupGradeHandlers() {
         document.getElementById('add-grade-btn')?.addEventListener('click', gradeService.addGrade);
