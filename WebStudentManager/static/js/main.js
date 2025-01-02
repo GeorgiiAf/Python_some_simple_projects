@@ -1,15 +1,11 @@
-import { closeModal } from './utils.js';
 import * as studentService from './studentService.js';
 import * as gradeService from './gradeService.js';
 import * as sortService from './sortService.js';
+import * as pdfExport from './pdfExport.js';
 
 class AppEventHandler {
     constructor() {
         this.initializeEventListeners();
-        // Load initial data
-        studentService.getAllStudents().catch(error => {
-            console.error('Failed to load initial data:', error);
-        });
     }
 
     initializeEventListeners() {
@@ -19,19 +15,72 @@ class AppEventHandler {
             this.setupSortingHandlers();
             this.setupGradeHandlers();
             this.setupModalHandlers();
+            this.setupExportHandlers();
+            
+            // Скрываем таблицу при загрузке
+            const studentList = document.getElementById('student-list');
+            if (studentList) {
+                studentList.style.display = 'none';
+            }
         });
+    }
+
+    setupExportHandlers() {
+        // Export all students
+        const exportAllBtn = document.querySelector('.export-all-btn');
+        if (exportAllBtn) {
+            exportAllBtn.addEventListener('click', () => {
+                pdfExport.exportAllStudentsToPDF();
+            });
+        }
+
+        // Export student grades
+        const exportGradesBtn = document.querySelector('.export-grades-btn');
+        if (exportGradesBtn) {
+            exportGradesBtn.addEventListener('click', () => {
+                const studentId = document.getElementById('student-id-display').textContent;
+                const studentName = document.querySelector(`tr[data-id="${studentId}"] .name-cell`).textContent +
+                                  ' ' +
+                                  document.querySelector(`tr[data-id="${studentId}"] .surname-cell`).textContent;
+                pdfExport.exportStudentGradesToPDF(studentId, studentName);
+            });
+        }
     }
 
     setupSearchHandlers() {
         const searchBtn = document.querySelector('.search-btn');
         const refreshBtn = document.querySelector('.refresh-btn');
+        const hideBtn = document.querySelector('.hide-btn');
         
         if (searchBtn) {
-            searchBtn.addEventListener('click', () => studentService.findStudents());
+            searchBtn.addEventListener('click', () => {
+                studentService.findStudents().then(() => {
+                    const studentList = document.getElementById('student-list');
+                    if (studentList) {
+                        studentList.style.display = 'block';
+                    }
+                });
+            });
         }
         
         if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => studentService.getAllStudents());
+            refreshBtn.addEventListener('click', () => {
+                studentService.getAllStudents().then(() => {
+                    const studentList = document.getElementById('student-list');
+                    if (studentList) {
+                        studentList.style.display = 'block';
+                    }
+                });
+            });
+        }
+
+        if (hideBtn) {
+            hideBtn.addEventListener('click', () => {
+                const studentList = document.getElementById('student-list');
+                if (studentList) {
+                    studentList.style.display = 'none';
+                }
+            });
         }
     }
 
@@ -73,21 +122,18 @@ class AppEventHandler {
     setupModalHandlers() {
         const modal = document.getElementById('student-modal');
         if (modal) {
+            // Создаем экземпляр модального окна Bootstrap
+            const modalInstance = new bootstrap.Modal(modal);
+            
+            // Сохраняем экземпляр в window для доступа из других модулей
+            window.studentModal = modalInstance;
+            
             modal.addEventListener('hidden.bs.modal', () => {
                 // Очищаем форму
                 const form = modal.querySelector('.grade-form');
                 if (form) {
                     form.reset();
                 }
-                
-                // Удаляем backdrop и очищаем стили body
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) {
-                    backdrop.remove();
-                }
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
                 
                 // Сбрасываем состояние редактирования
                 if (gradeService.isGradeEditing) {
@@ -101,6 +147,14 @@ class AppEventHandler {
                     gradeService.isGradeEditing = false;
                 }
             });
+
+            // Обработчик для кнопки закрытия
+            const closeBtn = modal.querySelector('.btn-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    modalInstance.hide();
+                });
+            }
         }
     }
 }

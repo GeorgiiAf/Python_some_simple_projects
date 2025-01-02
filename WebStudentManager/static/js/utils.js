@@ -1,33 +1,65 @@
+// Loader functions
 export function showLoader() {
-    document.body.style.cursor = 'wait';
+    const loader = document.querySelector('.loader');
+    if (loader) {
+        loader.style.display = 'block';
+    }
 }
 
 export function hideLoader() {
-    document.body.style.cursor = 'default';
+    const loader = document.querySelector('.loader');
+    if (loader) {
+        loader.style.display = 'none';
+    }
 }
 
-export function closeModal() {
-    const modal = document.getElementById('student-modal');
-    if (modal) {
-        // Используем Bootstrap Modal API
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        if (bsModal) {
-            bsModal.hide();
-        }
-        
-        // Очищаем форму
-        const form = modal.querySelector('.grade-form');
-        if (form) {
-            form.reset();
-        }
+// Alert functions
+export function showAlert(message, type = 'success') {
+    const alertArea = document.getElementById('alert-area');
+    if (!alertArea) return;
 
-        // Удаляем затемненный фон
-        const backdrop = document.querySelector('.modal-backdrop');
-        if (backdrop) {
-            backdrop.remove();
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+
+    alertArea.appendChild(alert);
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        alert.classList.remove('show');
+        setTimeout(() => alert.remove(), 150);
+    }, 3000);
+}
+
+// Form validation
+export function validateForm(form) {
+    const inputs = form.querySelectorAll('input[required]');
+    let isValid = true;
+
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            input.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            input.classList.remove('is-invalid');
         }
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-    }
+    });
+
+    return isValid;
+}
+
+// Clear form
+export function clearForm(form) {
+    form.reset();
+    form.querySelectorAll('.is-invalid').forEach(input => {
+        input.classList.remove('is-invalid');
+    });
+}
+
+// Format date
+export function formatDate(date) {
+    return new Date(date).toLocaleDateString();
 }
