@@ -1,392 +1,175 @@
+/* Custom color variables */
+:root {
+    --primary-green: #4CAF50;
+    --light-green: #E8F5E9;
+    --dark-green: #388E3C;
+    --hover-green: #43A047;
+    --success-green: #66BB6A;
+    --bg-green: #F1F8E9;
+}
+
 body {
-    font-family: Arial, sans-serif; /* Основной шрифт */
-    margin: 0;
-    padding: 20px;
-    background-color: #f0f0f0; /* Светло-серый фон */
+    background-color: var(--bg-green) !important;
 }
 
-h1 {
-    color: #333; /* Темный цвет заголовка */
-}
-
-h2 {
-    color: #555; /* Цвет заголовков второго уровня */
-    margin-top: 30px;
-}
-
-/* === Стили для полей ввода и кнопок === */
-input, button {
-    margin: 10px 0;
-    padding: 8px;
-    border: 1px solid #ccc; /* Серый бордер */
-    border-radius: 4px; /* Сглаженные углы */
-    font-size: 14px;
-}
-
-button {
-    background-color: #4CAF50; /* Зеленый фон */
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease; /* Анимация при наведении */
-}
-
-button:hover {
-    background-color: #45a049; /* Темно-зеленый фон при наведении */
-}
-
-/* === Стили для таблиц === */
-table {
-    border-collapse: collapse; /* Убираем двойные линии */
-    width: 100%; /* Полная ширина */
+/* Card styling */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: none;
     background-color: white;
-    margin-top: 20px;
 }
 
-th, td {
-    border: 1px solid #ddd; /* Серые бордюры ячеек */
-    padding: 10px;
-    text-align: left; /* Выравнивание текста влево */
+.card-header {
+    background-color: var(--light-green);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-th {
-    background-color: #c2c2c2; /* Светло-серый фон заголовков таблицы */
-    font-weight: bold;
+/* Button styling */
+.btn-primary {
+    background-color: var(--primary-green) !important;
+    border-color: var(--primary-green) !important;
 }
 
-tr:nth-child(even) {
-    background-color: #f9f9f9; /* Разные оттенки строк для читаемости */
+.btn-primary:hover {
+    background-color: var(--dark-green) !important;
+    border-color: var(--dark-green) !important;
 }
 
-tr:hover {
-    background-color: #f5f5f5; /* Подсветка строки при наведении */
+.btn-success {
+    background-color: var(--success-green) !important;
+    border-color: var(--success-green) !important;
 }
 
-/* === Стили для кнопок действий в таблице === */
-.action-buttons {
-    display: flex; /* Расположить кнопки в ряд */
-    gap: 10px; /* Промежуток между кнопками */
+/* Table styling */
+.table-light thead {
+    background-color: var(--light-green) !important;
 }
 
-.action-buttons button {
-    padding: 5px 10px;
-    font-size: 12px; /* Меньший шрифт для компактности */
-    border-radius: 4px;
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(76, 175, 80, 0.05);
 }
 
-/* Индивидуальные стили для кнопок редактирования и удаления */
-.action-buttons .edit-btn {
-    background-color: #ff9800; /* Оранжевый фон */
-    color: white;
+.table-hover tbody tr:hover {
+    background-color: rgba(76, 175, 80, 0.1);
 }
 
-.action-buttons .edit-btn:hover {
-    background-color: #e68a00; /* Темно-оранжевый при наведении */
+/* Sort icon styling */
+.sort-icon {
+    margin-left: 5px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    color: var(--dark-green);
 }
 
-.action-buttons .delete-btn {
-    background-color: #f44336; /* Красный фон */
-    color: white;
+.sort-icon:hover {
+    opacity: 1;
 }
 
-.action-buttons .delete-btn:hover {
-    background-color: #d32f2f; /* Темно-красный при наведении */
+.sort-icon.active {
+    opacity: 1;
+    color: var(--primary-green);
 }
 
-/* === Стили для контейнера с предметами === */
-.subjects-container {
-    margin-top: 20px;
-    padding: 10px;
-    border: 1px solid #ddd; /* Легкий серый бордер */
-    background-color: #fff; /* Белый фон */
-    border-radius: 4px; /* Сглаженные углы */
+/* Form styling */
+.form-control:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
 }
 
-.subjects-container h3 {
-    margin: 0;
-    color: #333; /* Темный цвет заголовка */
-}
-
-.subjects-container ul {
-    padding: 0;
-    margin: 10px 0;
-    list-style: none; /* Убираем маркеры списка */
-}
-
-.subjects-container ul li {
-    padding: 5px;
-    border-bottom: 1px solid #ddd; /* Разделение строк списка */
-}
-
-.subjects-container ul li:last-child {
-    border-bottom: none; /* Убираем линию у последнего элемента */
-}
-
-
-/* === Стили для модального окна === */
-#student-modal {
-    display: none; /* Окно по умолчанию скрыто */
-    position: fixed; /* Фиксированное положение */
-    z-index: 1000; /* Поверх других элементов */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный фон */
-    overflow: auto;
+/* Modal styling */
+.modal-header {
+    background-color: var(--light-green);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 .modal-content {
-    background-color: #fefefe; /* Белый фон модального окна */
-    margin: 10% auto; /* Центрирование окна */
-    padding: 20px;
-    border: 1px solid #888; /* Легкий серый бордер */
-    width: 80%; /* Ширина модального окна */
-    max-width: 800px;
-    border-radius: 5px; /* Сглаженные углы */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тень */
-    position: relative;
-}
-
-/* === Стили для заголовка модального окна === */
-.modal-header {
-    display: flex; /* Разделение заголовка и кнопки закрытия */
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #ddd; /* Разделительная линия */
-    padding-bottom: 10px;
-}
-
-.modal-header h2 {
-    margin: 0;
-    color: #333; /* Цвет заголовка */
-}
-
-.close {
-    color: #aaa; /* Светло-серый цвет кнопки закрытия */
-    float: right;
-    font-size: 28px; /* Размер */
-    font-weight: bold;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.close:hover,
-.close:focus {
-    color: #000; /* Черный цвет при наведении */
-    text-decoration: none; /* Убираем подчеркивание */
-}
-
-.modal-body {
-    margin-bottom: 20px;
-}
-
-#grades-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    background-color: white;
-}
-
-#grades-table th,
-#grades-table td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-}
-
-#grades-table th {
-    background-color: #c2c2c2;
-    color: #333;
-}
-
-#grades-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-#grades-table tr:hover {
-    background-color: #f5f5f5;
-}
-
-.modal-footer {
-    text-align: right;
-    border-top: 1px solid #ddd;
-    padding-top: 10px;
-}
-
-.modal-button {
-    padding: 8px 16px;
-    background-color: #4CAF50;
-    color: white;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 
-.modal-button:hover {
-    background-color: #45a049;
-}
-
-.grade-form input {
-    margin: 5px;
-    padding: 5px;
-}
-
-/* Стили для кнопок в таблице оценок */
-.grade-action-cell button {
-    margin: 2px;
-    padding: 3px 8px;
-    cursor: pointer;
-}
-
-/* Стили для полей редактирования в таблице */
-td input.edit-subject,
-td input.edit-date,
-td input.edit-grade {
-    width: 90%;
-    padding: 3px;
-    margin: 2px;
-}
-
-td input.edit-grade {
-    width: 60px;
-}
-
-.sort-icon {
-    margin-left: 5px;
-    cursor: pointer;
-}
-
-th[data-column] {
-    cursor: pointer;
-}
-
+/* Average grade display */
 .average-grade {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-    font-weight: bold;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: var(--light-green);
+    border-radius: 0.25rem;
     text-align: right;
-}
-
-/* Стили для режима редактирования */
-.edit-input {
-    width: 90%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: #fff;
-    transition: border-color 0.3s ease;
-}
-
-.edit-input:focus {
-    border-color: #4CAF50;
-    outline: none;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.2);
-}
-
-/* Стили для кнопок сохранения и отмены */
-.save-btn {
-    background-color: #4CAF50;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: background-color 0.3s ease;
-}
-
-.save-btn:hover {
-    background-color: #45a049;
-}
-
-.cancel-btn {
-    background-color: #f44336;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: background-color 0.3s ease;
-}
-
-.cancel-btn:hover {
-    background-color: #d32f2f;
-}
-
-/* Улучшенные стили для иконок сортировки */
-.sort-icon {
-    margin-left: 5px;
-    cursor: pointer;
-    display: inline-block;
-    font-size: 12px;
-    color: #666;
-    transition: color 0.3s ease;
-}
-
-th[data-column]:hover .sort-icon {
-    color: #333;
-}
-
-/* Стили для строки в режиме редактирования */
-tr.editing {
-    background-color: #fff9c4 !important;
-}
-
-tr.editing:hover {
-    background-color: #fff9c4 !important;
-}
-
-/* Обновленные стили для среднего балла */
-.average-grade {
-    margin-top: 20px;
-    padding: 15px;
-    background-color: #f5f5f5;
-    border-radius: 4px;
     font-weight: bold;
-    text-align: right;
-    border-left: 4px solid #4CAF50;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: var(--dark-green);
 }
 
-/* Стили для заголовков с сортировкой */
-th[data-column] {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    padding-right: 20px; /* Место для иконки */
+/* Student ID link styling */
+.id-cell a {
+    color: var(--primary-green) !important;
+    text-decoration: none;
 }
 
-th[data-column]:hover {
-    background-color: #b3b3b3;
+.id-cell a:hover {
+    color: var(--dark-green) !important;
+    text-decoration: underline;
 }
 
-/* Анимация для кнопок действий */
-.action-buttons button {
-    transition: transform 0.1s ease;
+/* Table cell editing styles */
+.editing {
+    background-color: var(--light-green) !important;
 }
 
-.action-buttons button:active {
-    transform: scale(0.95);
+/* Custom button spacing */
+.btn + .btn {
+    margin-left: 0.5rem;
 }
 
-/* Стили для отключенного состояния ячеек */
-td.disabled {
-    pointer-events: none;
-    color: #666;
+/* Form validation styles */
+.form-control.is-invalid {
+    border-color: #dc3545;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
 
-#grades-table tr.editing {
-    background-color: #fff3cd !important;
+/* Action buttons in tables */
+.action-buttons {
+    white-space: nowrap;
 }
 
-#grades-table tr.editing input {
-    background-color: white;
-    border: 1px solid #ced4da;
-    padding: 4px;
-    width: 100%;
+.action-buttons .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Card improvements */
+.card {
+    margin-bottom: 1.5rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Input group improvements */
+.input-group {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table td, .table th {
+        padding: 0.5rem;
+    }
+    
+    .btn {
+        padding: 0.375rem 0.75rem;
+    }
 }

@@ -5,59 +5,79 @@ import { validators } from './validators.js';
 export let isEditing = false;
 
 export async function addStudent() {
-   const nameInput = document.getElementById('name-input');
-   const surnameInput = document.getElementById('surname-input');
-   const studentIdInput = document.getElementById('student-id-input');
+    const nameInput = document.getElementById('name-input');
+    const surnameInput = document.getElementById('surname-input');
+    const studentIdInput = document.getElementById('student-id-input');
 
-   const name = nameInput.value.trim();
-   const surname = surnameInput.value.trim();
-   const studentId = studentIdInput.value.trim();
+    const name = nameInput.value.trim();
+    const surname = surnameInput.value.trim();
+    const studentId = studentIdInput.value.trim();
 
-   if (!validators.validateName(name, surname)) {
-       alert('Invalid name format');
-       return;
-   }
+    // Валидация полей
+    if (!name || !surname || !studentId) {
+        alert('All fields are required');
+        return;
+    }
 
-   if (!validators.validateStudentId(studentId)) {
-       alert('Invalid student ID format');
-       return;
-   }
+    if (!validators.validateName(name) || !validators.validateName(surname)) {
+        alert('Name and surname should contain only letters, spaces, and hyphens');
+        return;
+    }
 
-   try {
-       showLoader();
-       const response = await fetch('/add_student', {
-           method: 'POST',
-           headers: {'Content-Type': 'application/json'},
-           body: JSON.stringify({name, surname, student_id: studentId})
-       });
+    if (!validators.validateStudentId(studentId)) {
+        alert('Student ID should contain 3-20 alphanumeric characters');
+        return;
+    }
 
-       if (!response.ok) throw new Error('Server error');
-       const data = await response.json();
+    try {
+        showLoader();
+        const response = await fetch('/add_student', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                name: name,
+                surname: surname,
+                student_id: studentId
+            })
+        });
 
-       alert(data.message || 'Student added successfully.');
-       nameInput.value = '';
-       surnameInput.value = '';
-       studentIdInput.value = '';
-       await getAllStudents();
-   } catch (error) {
-       console.error('Error:', error);
-       alert(error.message || 'An error occurred while adding the student.');
-   } finally {
-       hideLoader();
-   }
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to add student');
+        }
+
+        // Очищаем форму только если студент успешно добавлен
+        nameInput.value = '';
+        surnameInput.value = '';
+        studentIdInput.value = '';
+        
+        // Показываем сообщение об успехе
+        alert(data.message || 'Student added successfully');
+        
+        // Обновляем список студентов
+        await getAllStudents();
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message);
+    } finally {
+        hideLoader();
+    }
 }
 
 export async function getAllStudents() {
     try {
         showLoader();
         const response = await fetch('/get_students');
-        if (!response.ok) throw new Error('Error loading students');
+        if (!response.ok) {
+            throw new Error('Failed to load students');
+        }
 
         const data = await response.json();
         updateStudentsTable(data);
     } catch (error) {
         console.error('Error:', error);
-        alert('Could not load the list of students.');
+        alert('Could not load the list of students');
     } finally {
         hideLoader();
     }
@@ -74,13 +94,15 @@ export async function findStudents() {
     try {
         showLoader();
         const response = await fetch(`/search_students?query=${encodeURIComponent(searchTerm)}`);
-        if (!response.ok) throw new Error('Search error');
+        if (!response.ok) {
+            throw new Error('Search failed');
+        }
 
         const data = await response.json();
         updateStudentsTable(data);
     } catch (error) {
         console.error('Error:', error);
-        alert('Could not perform student search.');
+        alert('Could not perform student search');
     } finally {
         hideLoader();
     }
@@ -166,18 +188,20 @@ export async function deleteStudent(studentId) {
 
     try {
         showLoader();
-        const response = await fetch(`/delete_student/${studentId}`, {
+        const response = await fetch(`/delete_student/${encodeURIComponent(studentId)}`, {
             method: 'DELETE'
         });
 
-        if (!response.ok) throw new Error('Error deleting student');
+        if (!response.ok) {
+            throw new Error('Failed to delete student');
+        }
 
         const data = await response.json();
-        alert(data.message || 'Student deleted successfully.');
+        alert(data.message || 'Student deleted successfully');
         await getAllStudents();
     } catch (error) {
         console.error('Error:', error);
-        alert('Could not delete the student.');
+        alert(error.message);
     } finally {
         hideLoader();
     }

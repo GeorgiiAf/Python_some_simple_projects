@@ -58,43 +58,74 @@ export async function editGrade(gradeId) {
 
     isGradeEditing = true;
     showLoader();
-    fetch(`/get_grade/${gradeId}`)
-        .then(response => {
-            if (!response.ok) throw new Error('Error loading grade data');
-            return response.json();
-        })
-        .then(grade => {
-            const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
-            if (!row) throw new Error('Row not found');
+    try {
+        const response = await fetch(`/get_grade/${gradeId}`);
+        if (!response.ok) {
+            throw new Error('Error loading grade data');
+        }
+        
+        const grade = await response.json();
+        const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
+        if (!row) {
+            throw new Error('Row not found');
+        }
 
-            row.classList.add('editing');
-            const cells = row.querySelectorAll('td');
+        row.classList.add('editing');
+        const cells = row.querySelectorAll('td');
 
-            cells[0].innerHTML = `<input type="text" class="edit-subject" value="${grade.subject_name}">`;
-            cells[2].innerHTML = `<input type="date" class="edit-date" value="${grade.date}">`;
-            cells[3].innerHTML = `<input type="number" class="edit-grade" value="${grade.grade}" min="0" max="5">`;
-            cells[4].innerHTML = `
-                <button class="save-grade-btn" onclick="saveGradeChanges('${gradeId}')">Save</button>
-                <button class="cancel-grade-btn" onclick="cancelGradeEdit('${gradeId}')">Cancel</button>
-            `;
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to load grade data');
-            isGradeEditing = false;
-        })
-        .finally(hideLoader);
+        cells[0].innerHTML = `<input type="text" class="form-control form-control-sm edit-subject" value="${grade.subject_name}">`;
+        cells[2].innerHTML = `<input type="date" class="form-control form-control-sm edit-date" value="${grade.date}">`;
+        cells[3].innerHTML = `<input type="number" class="form-control form-control-sm edit-grade" value="${grade.grade}" min="1" max="5">`;
+        cells[4].innerHTML = `
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-success" onclick="saveGradeChanges(${gradeId})">Save</button>
+                <button class="btn btn-secondary" onclick="cancelGradeEdit(${gradeId})">Cancel</button>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to load grade data');
+        isGradeEditing = false;
+    } finally {
+        hideLoader();
+    }
 }
 
 
 export async function cancelGradeEdit(gradeId) {
     const row = document.querySelector(`tr[data-grade-id="${gradeId}"]`);
-    if (row) {
-        row.classList.remove('editing');
+    if (!row) {
+        return;
     }
-    isGradeEditing = false;
-    const studentId = document.getElementById('student-id-display').innerText;
-    await viewStudentDetails(studentId);
+    
+    try {
+        // Получаем текущие данные оценки
+        const response = await fetch(`/get_grade/${gradeId}`);
+        if (!response.ok) {
+            throw new Error('Failed to get grade data');
+        }
+        
+        const grade = await response.json();
+        
+        // Восстанавливаем исходное состояние строки
+        row.classList.remove('editing');
+        const cells = row.querySelectorAll('td');
+        
+        cells[0].textContent = grade.subject_name;
+        cells[2].textContent = grade.date;
+        cells[3].textContent = grade.grade;
+        cells[4].innerHTML = `
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-warning" onclick="editGrade(${gradeId})">Edit</button>
+                <button class="btn btn-danger" onclick="deleteGrade(${gradeId})">Delete</button>
+            </div>
+        `;
+        
+        isGradeEditing = false;
+    } catch (error) {
+        console.error('Error canceling edit:', error);
+        alert('Failed to cancel edit. Please try closing and reopening the grade book.');
+    }
 }
 
 export async function deleteGrade(gradeId) {
@@ -129,9 +160,15 @@ export async function saveGradeChanges(gradeId) {
         return;
     }
 
+    // Используем добавленные классы для поиска инпутов
     const subjectInput = row.querySelector('.edit-subject');
     const dateInput = row.querySelector('.edit-date');
     const gradeInput = row.querySelector('.edit-grade');
+
+    if (!subjectInput || !dateInput || !gradeInput) {
+        alert('Could not find input fields');
+        return;
+    }
 
     const subject = subjectInput.value.trim();
     const date = dateInput.value;
@@ -142,39 +179,46 @@ export async function saveGradeChanges(gradeId) {
         return;
     }
 
-    if (isNaN(grade) || grade < 0 || grade > 5) {
-        alert('Grade must be a number between 0 and 5');
+    if (isNaN(grade) || grade < 1 || grade > 5) {
+        alert('Grade must be a number between 1 and 5');
         return;
     }
 
-    showLoader();
-    fetch(`/edit_grade/${gradeId}`, {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            subject_name: subject,
-            date: date,
-            grade: grade
-        })
-    })
-        .then(response => {
-            if (!response.ok) throw new Error('Error saving changes');
-            return response.json();
-        })
-        .then(() => {
-            row.classList.remove('editing');
-            isGradeEditing = false;
-            const studentId = document.getElementById('student-id-display').innerText;
-            viewStudentDetails(studentId);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to save changes');
-        })
-        .finally(() => {
-            hideLoader();
-            isGradeEditing = false;
+    try {
+        showLoader();
+        const response = await fetch(`/edit_grade/${gradeId}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                subject_name: subject,
+                date: date,
+                grade: grade
+            })
         });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to save changes');
+        }
+
+        // Сбрасываем состояние редактирования
+        row.classList.remove('editing');
+        isGradeEditing = false;
+
+        // Обновляем данные в таблице
+        const studentId = document.getElementById('student-modal').dataset.studentId;
+        await viewStudentDetails(studentId);
+
+        // Показываем сообщение об успехе
+        alert(data.message || 'Grade updated successfully');
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message);
+    } finally {
+        hideLoader();
+        isGradeEditing = false;
+    }
 }
 
 
@@ -188,10 +232,14 @@ export async function viewStudentDetails(studentId) {
         }
 
         const data = await response.json();
+        
+        // Обновляем ID студента в модальном окне
+        document.getElementById('student-id-display').textContent = studentId;
 
         // Update grades table using the function from tableService
         updateGradesTable(data.grades, studentId);
 
+        // Показываем средний балл
         const averageGrade = calculateAverageGrade();
         const averageDisplay = document.getElementById('average-grade-display');
         if (averageDisplay) {
@@ -201,19 +249,14 @@ export async function viewStudentDetails(studentId) {
             averageDiv.id = 'average-grade-display';
             averageDiv.className = 'average-grade';
             averageDiv.textContent = `Average grade: ${averageGrade}`;
-            document.getElementById('student-modal').querySelector('.modal-content').appendChild(averageDiv);
+            document.querySelector('.modal-body').appendChild(averageDiv);
         }
 
-        // Display the modal window
+        // Показываем модальное окно используя Bootstrap
         const modal = document.getElementById('student-modal');
-        modal.style.display = 'block';
+        const bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
 
-        // Add event handler to close the modal window
-        window.onclick = function (event) {
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
     } catch (error) {
         console.error('Error loading grades:', error);
         alert('An error occurred while loading student grades');

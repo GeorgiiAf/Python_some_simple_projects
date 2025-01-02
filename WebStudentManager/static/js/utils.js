@@ -5,15 +5,29 @@ export function showLoader() {
 export function hideLoader() {
     document.body.style.cursor = 'default';
 }
+
 export function closeModal() {
     const modal = document.getElementById('student-modal');
-    modal.style.display = 'none';
-    document.getElementById('modal-subject-name').value = '';
-    document.getElementById('modal-subject-grade').value = '';
-    document.getElementById('modal-subject-date').value = '';
-    window.onclick = null;
-    const saveGradeButton = document.getElementById('save-grade-btn');
-    if (saveGradeButton) {
-        saveGradeButton.onclick = null;
+    if (modal) {
+        // Используем Bootstrap Modal API
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        if (bsModal) {
+            bsModal.hide();
+        }
+        
+        // Очищаем форму
+        const form = modal.querySelector('.grade-form');
+        if (form) {
+            form.reset();
+        }
+
+        // Удаляем затемненный фон
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+            backdrop.remove();
+        }
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
     }
 }

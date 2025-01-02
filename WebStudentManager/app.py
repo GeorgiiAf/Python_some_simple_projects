@@ -11,13 +11,13 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-# Модель для студентов
+# Student Model
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.String(20), unique=True, nullable=False)
     name = db.Column(db.String(50), nullable=False)
     surname = db.Column(db.String(50), nullable=False)
-    # Добавляем связь с оценками и каскадное удаление
+    # Add relationship with grades and cascade deletion
     grades = db.relationship('Subject', backref='student',
                              cascade='all, delete-orphan',
                              lazy=True)
@@ -31,7 +31,7 @@ class Student(db.Model):
         }
 
 
-# Модель для предметов и оценок
+# Subject and Grade Model
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.String(20), db.ForeignKey('student.student_id'), nullable=False)
@@ -45,11 +45,11 @@ class Subject(db.Model):
             "student_id": self.student_id,
             "subject_name": self.subject_name,
             "grade": self.grade,
-            "date": self.date.strftime('%Y-%m-%d') if self.date else None  # Добавляем дату
+            "date": self.date.strftime('%Y-%m-%d') if self.date else None  # Add date
         }
 
 
-# Главная страница
+# Main page
 @app.errorhandler(404)
 def not_found_error(error):
     return jsonify({"error": "Resource not found"}), 404
@@ -65,7 +65,7 @@ def index():
     return render_template('index.html')
 
 
-# Получение всех студентов и их предметов
+# Get all students and their subjects
 @app.route('/get_students', methods=['GET'])
 def get_students():
     students = Student.query.all()
@@ -107,7 +107,7 @@ def search_students():
     return jsonify([student.to_dict() for student in students])
 
 
-# Добавление нового студента
+# Add new student
 @app.route('/add_student', methods=['POST'])
 def add_student():
     data = request.get_json()
@@ -131,7 +131,7 @@ def delete_student(student_id):
     return jsonify({"message": "Student deleted successfully!"})
 
 
-# Добавление оценки
+# Add grade
 @app.route('/add_grade', methods=['POST'])
 def add_grade():
     data = request.get_json()
@@ -140,7 +140,7 @@ def add_grade():
         return jsonify({"error": "Student not found!"}), 404
 
     try:
-        # Преобразуем строку даты в объект datetime
+        # Convert date string to datetime object
         grade_date = datetime.strptime(data['date'], '%Y-%m-%d').date()
     except (ValueError, KeyError):
         return jsonify({"error": "Invalid date format"}), 400
@@ -164,14 +164,14 @@ def delete_grade(grade_id):
     return jsonify({"message": "Grade deleted successfully!"})
 
 
-# Редактирование оценки
+# Edit grade
 @app.route('/edit_grade/<int:grade_id>', methods=['PUT'])
 def edit_grade(grade_id):
     data = request.get_json()
     subject = Subject.query.get_or_404(grade_id)
 
     try:
-        # Валидация данных
+        # Data validation
         if 'grade' in data:
             grade = int(data['grade'])
             if not (0 <= grade <= 5):
@@ -223,7 +223,7 @@ def get_grades(student_id):
     student = Student.query.filter_by(student_id=student_id).first_or_404()
     subjects = Subject.query.filter_by(student_id=student.student_id) \
         .order_by(Subject.date.desc()) \
-        .all()  # Сортируем по дате
+        .all()  # Sort by date
 
     return jsonify({
         "student": {
@@ -244,20 +244,20 @@ def get_grade(grade_id):
 @app.route('/update_student_field/<student_id>', methods=['PUT'])
 def update_student_field(student_id):
     data = request.get_json()
-    field = list(data.keys())[0]  # Получаем ключ (например, 'name' или 'surname')
+    field = list(data.keys())[0]  # Get key (e.g., 'name' or 'surname')
     new_value = data[field]
 
-    # Обновление данных студента в базе
-    student = Student.query.filter_by(student_id=student_id).first()  # Используем правильный запрос
+    # Update student data in database
+    student = Student.query.filter_by(student_id=student_id).first()
     if student:
         setattr(student, field, new_value)
-        db.session.commit()  # Сохраняем изменения в базе данных
-        return jsonify({'message': 'Данные успешно обновлены.'}), 200
+        db.session.commit()
+        return jsonify({'message': 'Data updated successfully.'}), 200
     else:
-        return jsonify({'error': 'Студент не найден.'}), 404
+        return jsonify({'error': 'Student not found.'}), 404
 
 
-# Запуск приложения
+# Run application
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

@@ -6,7 +6,10 @@ import * as sortService from './sortService.js';
 class AppEventHandler {
     constructor() {
         this.initializeEventListeners();
-        this.exposeRequiredGlobals();
+        // Load initial data
+        studentService.getAllStudents().catch(error => {
+            console.error('Failed to load initial data:', error);
+        });
     }
 
     initializeEventListeners() {
@@ -20,52 +23,87 @@ class AppEventHandler {
     }
 
     setupSearchHandlers() {
-        document.querySelector('.search-btn')?.addEventListener('click', studentService.findStudents);
-        document.querySelector('.refresh-btn')?.addEventListener('click', studentService.getAllStudents);
+        const searchBtn = document.querySelector('.search-btn');
+        const refreshBtn = document.querySelector('.refresh-btn');
+        
+        if (searchBtn) {
+            searchBtn.addEventListener('click', () => studentService.findStudents());
+        }
+        
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => studentService.getAllStudents());
+        }
     }
 
     setupStudentFormHandler() {
-        document.getElementById('add-student-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            studentService.addStudent();
-        });
+        const form = document.getElementById('add-student-form');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                studentService.addStudent();
+            });
+        }
     }
 
     setupSortingHandlers() {
-    // Для таблицы студентов
-    document.querySelectorAll('#students-table [data-sort]').forEach(header => {
-        header.addEventListener('click', (e) => {
-            const column = e.target.closest('[data-sort]').dataset.sort;
-            sortService.sortTable(column);
+        // Для таблицы студентов
+        document.querySelectorAll('#students-table [data-sort]').forEach(header => {
+            header.addEventListener('click', (e) => {
+                const column = e.target.closest('[data-sort]').dataset.sort;
+                sortService.sortTable(column);
+            });
         });
-    });
 
-    // Для таблицы оценок
-    document.querySelectorAll('#grades-table [data-sort]').forEach(header => {
-        header.addEventListener('click', (e) => {
-            const column = e.target.closest('[data-sort]').dataset.sort;
-            sortService.sortGrades(column);
+        // Для таблицы оценок
+        document.querySelectorAll('#grades-table [data-sort]').forEach(header => {
+            header.addEventListener('click', (e) => {
+                const column = e.target.closest('[data-sort]').dataset.sort;
+                sortService.sortGrades(column);
+            });
         });
-    });
-}
+    }
 
     setupGradeHandlers() {
-        document.getElementById('add-grade-btn')?.addEventListener('click', gradeService.addGrade);
+        const addGradeBtn = document.getElementById('add-grade-btn');
+        if (addGradeBtn) {
+            addGradeBtn.addEventListener('click', () => gradeService.addGrade());
+        }
     }
 
     setupModalHandlers() {
-        document.querySelector('.close')?.addEventListener('click', closeModal);
-    }
-
-    exposeRequiredGlobals() {
-        // Temporary solution for legacy HTML onclick handlers
-        Object.assign(window, {
-            ...studentService,
-            ...gradeService,
-            ...sortService,
-            closeModal
-        });
+        const modal = document.getElementById('student-modal');
+        if (modal) {
+            modal.addEventListener('hidden.bs.modal', () => {
+                // Очищаем форму
+                const form = modal.querySelector('.grade-form');
+                if (form) {
+                    form.reset();
+                }
+                
+                // Удаляем backdrop и очищаем стили body
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                
+                // Сбрасываем состояние редактирования
+                if (gradeService.isGradeEditing) {
+                    const editingRow = modal.querySelector('tr.editing');
+                    if (editingRow) {
+                        const gradeId = editingRow.dataset.gradeId;
+                        if (gradeId) {
+                            gradeService.cancelGradeEdit(gradeId);
+                        }
+                    }
+                    gradeService.isGradeEditing = false;
+                }
+            });
+        }
     }
 }
 
+// Initialize the application
 new AppEventHandler();
