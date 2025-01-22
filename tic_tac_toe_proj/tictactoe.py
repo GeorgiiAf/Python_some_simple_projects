@@ -14,10 +14,12 @@ Green_color = '#7BC043'
 
 
 
-def create_database():      # Function to create the database if it does not exist
-    conn = sqlite3.connect('game_log.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS game_log (
+def create_database():
+    """Создание базы данных с обработкой ошибок"""
+    try:
+        conn = sqlite3.connect('game_log.db')
+        c = conn.cursor()
+        c.execute('''CREATE TABLE IF NOT EXISTS game_log (
                     match_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     player1_name TEXT,
                     player2_name TEXT,
@@ -26,8 +28,13 @@ def create_database():      # Function to create the database if it does not exi
                     result TEXT,
                     player1_points INTEGER,
                     player2_points INTEGER)''')
-    conn.commit()
-    conn.close()
+        conn.commit()
+        print("Database created/connected successfully")
+    except sqlite3.Error as e:
+        print(f"Database error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 class Tic_Tac_Toe:      # Class to implement the game
       # Initialization Functions:
@@ -46,7 +53,13 @@ class Tic_Tac_Toe:      # Class to implement the game
         #  creating canvas for drawing
         self.canvas = tk.Canvas(self.window, width=size_of_board, height=size_of_board)
         self.canvas.pack(padx=50, pady=50)
-        self.current_turn_label = tk.Label(self.window, text=f"Turn: {self.player1_name}", font=("Helvetica", 14))
+        self.current_turn_label = tk.Label(
+            self.window, 
+            text=f"Turn: {self.player1_name}", 
+            font=("Helvetica", 14),
+            bg=symbol_X_color,  # Начальный цвет для X
+            fg='white'
+        )
         self.current_turn_label.pack()
         # Input from user in form of clicks
 
@@ -61,6 +74,17 @@ class Tic_Tac_Toe:      # Class to implement the game
         self.create_quit_button(self.window)
         self.reset_game()
 
+        # Добавляем фрейм для счета
+        self.score_frame = tk.Frame(self.window)
+        self.score_frame.pack(before=self.canvas)
+        
+        self.score_label = tk.Label(
+            self.score_frame, 
+            text=f"{self.player1_name}: 0 | {self.player2_name}: 0 | Ties: 0",
+            font=("Helvetica", 12)
+        )
+        self.score_label.pack(pady=5)
+
     def mainloop(self):
         self.window.mainloop()  #         Start the main loop for the game.
 
@@ -69,9 +93,10 @@ class Tic_Tac_Toe:      # Class to implement the game
         quit_button.pack(side=BOTTOM, pady=10)
 
     def quit_game(self):
-        self.window.destroy()
-        self.window.quit()
-        sys.exit()
+        if tk.messagebox.askokcancel("Quit", "Do you want to quit the game?"):
+            self.window.destroy()
+            self.window.quit()
+            sys.exit()
 
 
     # Logging the game result in the database
@@ -173,6 +198,19 @@ class Tic_Tac_Toe:      # Class to implement the game
         score_text = 'Click to play again \n'
         self.canvas.create_text(size_of_board / 2, 15 * size_of_board / 16, font="cmr 20 bold", fill="gray",
                                 text=score_text)
+        
+        # Добавляем статистику игры
+        win_percentage_x = (self.X_score / (self.X_score + self.O_score + self.tie_score)) * 100 if (self.X_score + self.O_score + self.tie_score) > 0 else 0
+        win_percentage_o = (self.O_score / (self.X_score + self.O_score + self.tie_score)) * 100 if (self.X_score + self.O_score + self.tie_score) > 0 else 0
+        
+        stats_text = f'\nWin Rate:\n{self.player1_name}: {win_percentage_x:.1f}%\n{self.player2_name}: {win_percentage_o:.1f}%'
+        self.canvas.create_text(
+            size_of_board / 2, 
+            7 * size_of_board / 8, 
+            font="cmr 20 bold", 
+            fill="gray",
+            text=stats_text
+        )
 
     # Logical Functions:
     # The modules required to carry out game logic
@@ -241,7 +279,10 @@ class Tic_Tac_Toe:      # Class to implement the game
                     self.draw_X(logical_position)
                     self.board_status[logical_position[0], logical_position[1]] = -1
                     self.player_X_turns = not self.player_X_turns
-                    self.current_turn_label.config(text=f"Turn: {self.player2_name}")
+                    self.current_turn_label.config(
+                        text=f"Turn: {self.player2_name}",
+                        bg=symbol_O_color
+                    )
                     if self.is_gameover():
                         self.display_gameover()
                     elif self.mode == 'computer' and not self.player_X_turns:
@@ -251,7 +292,10 @@ class Tic_Tac_Toe:      # Class to implement the game
                     self.draw_O(logical_position)
                     self.board_status[logical_position[0], logical_position[1]] = 1
                     self.player_X_turns = not self.player_X_turns
-                    self.current_turn_label.config(text=f"Turn: {self.player1_name}")
+                    self.current_turn_label.config(
+                        text=f"Turn: {self.player1_name}",
+                        bg=symbol_X_color
+                    )
                     if self.is_gameover():
                         self.display_gameover()
         else:
@@ -274,7 +318,10 @@ class Tic_Tac_Toe:      # Class to implement the game
             self.draw_O(logical_position)
             self.board_status[logical_position[0], logical_position[1]] = 1
             self.player_X_turns = not self.player_X_turns
-            self.current_turn_label.config(text=f"Turn: {self.player1_name}")
+            self.current_turn_label.config(
+                text=f"Turn: {self.player1_name}",
+                bg=symbol_X_color
+            )
             if self.is_gameover():
                 self.display_gameover()
 
@@ -388,6 +435,30 @@ class Tic_Tac_Toe:      # Class to implement the game
                         best_move = (i, j)
                         best_val = move_val
         return best_move
+
+    def update_score_display(self):
+        self.score_label.config(
+            text=f"{self.player1_name}: {self.X_score} | {self.player2_name}: {self.O_score} | Ties: {self.tie_score}"
+        )
+
+    def display_winning_line(self, start_pos, end_pos):
+        """Анимация победной линии"""
+        line = self.canvas.create_line(
+            start_pos[0], start_pos[1],
+            start_pos[0], start_pos[1],  # Начальная точка совпадает
+            width=10,
+            fill=Green_color
+        )
+        
+        def animate(current_x, current_y, target_x, target_y, steps=30):
+            if steps > 0:
+                # Вычисляем следующую позицию
+                next_x = current_x + (target_x - current_x) / steps
+                next_y = current_y + (target_y - current_y) / steps
+                self.canvas.coords(line, start_pos[0], start_pos[1], next_x, next_y)
+                self.window.after(20, lambda: animate(next_x, next_y, target_x, target_y, steps-1))
+        
+        animate(start_pos[0], start_pos[1], end_pos[0], end_pos[1])
 
 
 
