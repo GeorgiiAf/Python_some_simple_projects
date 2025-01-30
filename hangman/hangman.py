@@ -4,6 +4,7 @@ import PySimpleGUI as sg
 
 MAX_INCORRECT_GUESSES = 6
 
+
 class Hangman:
     def __init__(self) -> None:
         # Define the layout of the GUI
@@ -197,6 +198,7 @@ class Hangman:
         with open("words.txt", "r", encoding='utf-8') as words:
             word_list = words.readlines()
         return choice(word_list).strip().upper()
+
     def _build_guessed_word(self):
         # Build the guessed word with underscores for unguessed letters
         current_letters = []
@@ -265,6 +267,7 @@ class Hangman:
         self.quit = answer == "No"
         if not self.quit:
             self._new_game()
+
 
 if __name__ == "__main__":
     game = Hangman()
