@@ -1,287 +1,108 @@
+import sys
+import random
 from string import ascii_uppercase
-from random import choice
-import PySimpleGUI as sg
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLayout, QGridLayout, QMessageBox
+from PyQt6.QtGui import QIcon,QGuiApplication
+from HangmanDrawing import HangmanDrawing
 
-MAX_INCORRECT_GUESSES = 6
+class HangmanGame(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Hangman на PyQt")
+        self.setGeometry(0, 20, 650, 720)
+        self.center_window()
+        self.setWindowIcon(QIcon("hangman.jpg"))
+        self.drawing_widget = HangmanDrawing()
+
+        self.word_list = self.load_words("words.txt")
+        self.target_word = random.choice(self.word_list)
+        self.guessed_letters = set()
+        self.wrong_guesses = 0
+        self.max_wrong_guesses = 6
+
+        self.init_ui()
+
+    def center_window(self):
+        screen = QGuiApplication.primaryScreen()
+        screen_geometry = screen.geometry()
+        window_geometry = self.geometry()
+        x = (screen_geometry.width() - window_geometry.width()) // 2
+        y = (screen_geometry.height() - window_geometry.height()) // 2 - 50
+        self.move(x, y)
+
+    @staticmethod
+    def load_words(filename):
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                words = [line.strip().upper() for line in f if line.strip()]
+            return  words
+        except FileNotFoundError:
+            print("File not found , will be used default word list")
+            return ["PYTHON", "HANGMAN", "DEVELOPER"]
 
 
-class Hangman:
-    def __init__(self) -> None:
-        # Define the layout of the GUI
-        layout = [
-            [
-                self._build_canvas_frame(),  # Frame for the hangman drawing
-                self._build_letters_frame(),  # Frame for the letter buttons
-            ],
-            [
-                self._build_guessed_word_frame(),  # Frame to display the guessed word
-            ],
-            [
-                self._build_action_buttons_frame(),  # Frame for action buttons
-            ],
-        ]
-        # Create the window
-        self._window = sg.Window(title="Hangman", layout=layout, finalize=True)
-        self._canvas = self._window["-CANVAS-"]
-        self._new_game()
-        self.quit = False
-        self._played_games = 0
-        self._won_games = 0
+    def init_ui(self):
+        self.word_label = QLabel(self.get_display_word(), self)
+        self.word_label.setStyleSheet("font-size: 40px;")
 
-    def _build_canvas_frame(self):
-        # Frame to draw the hangman
-        return sg.Frame(
-            'Hangman',
-            [
-                [
-                    sg.Graph(
-                        key='-CANVAS-',
-                        canvas_size=(200, 400),
-                        graph_bottom_left=(0, 0),
-                        graph_top_right=(200, 400),
-                    )
-                ]
-            ],
-            font='Any 20',
-        )
+        # Сетка кнопок с буквами
+        self.letter_buttons = {}
+        grid_layout = QGridLayout()
+        for i, letter in enumerate(ascii_uppercase):
+            button = QPushButton(letter, self)
+            button.clicked.connect(lambda _, l=letter: self.guess_letter(l))
+            self.letter_buttons[letter] = button
+            grid_layout.addWidget(button, i // 6, i % 6)
 
-    def _build_letters_frame(self):
-        # Create buttons for each letter in the alphabet
-        letter_groups = [
-            ascii_uppercase[i: i + 4]
-            for i in range(0, len(ascii_uppercase), 4)
-        ]
-        letter_buttons = [
-            [
-                sg.Button(
-                    button_text=f' {letter}',
-                    font='Courier 20',
-                    border_width=0,
-                    button_color=(None, sg.theme_background_color()),
-                    key=f'-letter-{letter}-',
-                    enable_events=True,
-                )
-                for letter in letter_group
-            ]
-            for letter_group in letter_groups
-        ]
-        return sg.Column(
-            [
-                [
-                    sg.Frame(
-                        'Letters',
-                        letter_buttons,
-                        font='Any 20',
-                    ),
-                    sg.Sizer(),
-                ]
-            ]
-        )
+        # Кнопка для новой игры
+        self.restart_button = QPushButton("New game", self)
+        self.restart_button.setStyleSheet(
+            "font-size: 20px; background-color: #4CAF50; color: white; border-radius: 10px;")
+        self.restart_button.clicked.connect(self.new_game)
 
-    def _build_guessed_word_frame(self):
-        # Frame to display the currently guessed word
-        return sg.Frame(
-            '',
-            [
-                [
-                    sg.Text(
-                        key='-DISPLAY-WORD-',
-                        font='Courier 20',
-                    )
-                ]
-            ],
-            element_justification='center',
-        )
+        # Размещение виджетов
+        layout = QVBoxLayout()
+        layout.addWidget(self.drawing_widget)
+        layout.addWidget(self.word_label)
+        layout.addLayout(grid_layout)
+        layout.addWidget(self.restart_button)
+        self.setLayout(layout)
 
-    def _build_action_buttons_frame(self):
-        # Frame for action buttons: New, Restart, Quit
-        return sg.Frame(
-            '',
-            [
-                [
-                    sg.Sizer(h_pixels=90),
-                    sg.Button(
-                        button_text='New',
-                        key='-NEW-',
-                        font='Any 20',
-                    ),
-                    sg.Sizer(h_pixels=60),
-                    sg.Button(
-                        button_text='Restart',
-                        key='-RESTART-',
-                        font='Any 20',
-                    ),
-                    sg.Sizer(h_pixels=60),
-                    sg.Button(
-                        button_text='Quit',
-                        key='-QUIT-',
-                        font='Any 20',
-                    ),
-                    sg.Sizer(h_pixels=90),
-                ]
-            ],
-            font='Any 20',
-        )
+    def get_display_word(self):
+        return " ".join([letter if letter in self.guessed_letters else "_" for letter in self.target_word])
 
-    def _draw_scaffold(self):
-        # Draw the scaffold for the hangman
-        lines = [
-            ((40, 55), (180, 55), 10),
-            ((165, 60), (165, 365), 10),
-            ((160, 360), (100, 360), 10),
-            ((100, 365), (100, 330), 10),
-            ((100, 330), (100, 310), 1),
-        ]
-        for *points, width in lines:
-            self._canvas.DrawLine(*points, color="black", width=width)
+    def guess_letter(self, letter):
+        if letter in self.guessed_letters:
+            return
 
-    def _draw_hanged_man(self):
-        # Draw the hangman based on the number of incorrect guesses
-        head = (100, 290)
-        torso = [((100, 270), (100, 170))]
-        left_arm = [
-            ((100, 250), (80, 250)),
-            ((80, 250), (60, 210)),
-            ((60, 210), (60, 190)),
-        ]
-        right_arm = [
-            ((100, 250), (120, 250)),
-            ((120, 250), (140, 210)),
-            ((140, 210), (140, 190)),
-        ]
-        left_leg = [
-            ((100, 170), (80, 170)),
-            ((80, 170), (70, 140)),
-            ((70, 140), (70, 80)),
-            ((70, 80), (60, 80)),
-        ]
-        right_leg = [
-            ((100, 170), (120, 170)),
-            ((120, 170), (130, 140)),
-            ((130, 140), (130, 80)),
-            ((130, 80), (140, 80)),
-        ]
-        body = [
-            torso,
-            left_arm,
-            right_arm,
-            left_leg,
-            right_leg,
-        ]
-        if self._wrong_guesses == 1:
-            self._canvas.DrawCircle(head, 20, line_color="red", line_width=2)
-        elif self._wrong_guesses > 1:
-            for part in body[self._wrong_guesses - 2]:
-                self._canvas.DrawLine(*part, color="red", width=2)
+        self.guessed_letters.add(letter)
+        self.letter_buttons[letter].setDisabled(True)
 
-    def read_event(self):
-        # Read events from the window
-        event = self._window.read()
-        event_id = event[0] if event is not None else None
-        return event_id
+        if letter not in self.target_word:
+            self.wrong_guesses += 1
+            self.drawing_widget.update_wrong_guesses(self.wrong_guesses)
 
-    def process_event(self, event):
-        # Process the event based on its type
-        if event[:8] == "-letter-":
-            self._play(letter=event[8])
-        elif event == "-RESTART-":
-            self._restart_game()
-        elif event == "-NEW-":
-            self._new_game()
+        self.word_label.setText(self.get_display_word())
 
-    def close(self):
-        # Close the window
-        self._window.close()
+        if set(self.target_word) <= self.guessed_letters:
+            QMessageBox.information(self, "Victory!", "You won")
+            self.new_game()
+        elif self.wrong_guesses >= self.max_wrong_guesses:
+            QMessageBox.critical(self, "You Lost", f"The correct word is : {self.target_word}")
+            self.new_game()
 
-    def _select_word(self):
-        # Select a random word from the words file
-        with open("words.txt", "r", encoding='utf-8') as words:
-            word_list = words.readlines()
-        return choice(word_list).strip().upper()
+    def new_game(self):
+        self.target_word = random.choice(self.word_list)
+        self.guessed_letters = set()
+        self.wrong_guesses = 0
+        self.word_label.setText(self.get_display_word())
 
-    def _build_guessed_word(self):
-        # Build the guessed word with underscores for unguessed letters
-        current_letters = []
-        for letter in self._target_word:
-            if letter in self._guessed_letters:
-                current_letters.append(letter)
-            else:
-                current_letters.append("_")
-        return " ".join(current_letters)
-
-    def _new_game(self):
-        # Start a new game
-        self._target_word = self._select_word()
-        self._restart_game()
-
-    def _restart_game(self):
-        # Restart the current game
-        self._guessed_letters = set()
-        self._wrong_guesses = 0
-        self._guessed_word = self._build_guessed_word()
-        # Restart GUI
-        self._canvas.Erase()
-        self._draw_scaffold()
-        for letter in ascii_uppercase:
-            self._window[f"-letter-{letter}-"].update(disabled=False)
-        self._window["-DISPLAY-WORD-"].update(self._guessed_word)
-
-    def _play(self, letter):
-        # Handle the guessing of a letter
-        if letter not in self._target_word:
-            self._wrong_guesses += 1
-        self._guessed_letters.add(letter)
-        self._guessed_word = self._build_guessed_word()
-        # Update GUI
-        self._window[f"-letter-{letter}-"].update(disabled=True)
-        self._window["-DISPLAY-WORD-"].update(self._guessed_word)
-        self._draw_hanged_man()
-
-    def is_over(self):
-        # Check if the game is over
-        return any(
-            [
-                self._wrong_guesses == MAX_INCORRECT_GUESSES,
-                set(self._target_word) <= self._guessed_letters,
-            ]
-        )
-
-    def check_winner(self):
-        # Check if the player has won or lost
-        self._played_games += 1
-        if self._wrong_guesses < MAX_INCORRECT_GUESSES:
-            self._won_games += 1
-            answer = sg.PopupYesNo(
-                "You've won! Congratulations!\n"
-                f"That's {self._won_games} out of {self._played_games}!\n"
-                "Another round?",
-                title="Winner!",
-            )
-        else:
-            answer = sg.PopupYesNo(
-                f"You've lost! The word was '{self._target_word}'.\n"
-                f"That's {self._won_games} out of {self._played_games}!\n"
-                "Another round?",
-                title="Sorry!",
-            )
-        self.quit = answer == "No"
-        if not self.quit:
-            self._new_game()
+        for button in self.letter_buttons.values():
+            button.setDisabled(False)
 
 
 if __name__ == "__main__":
-    game = Hangman()
-    # Rounds
-    while not game.quit:
-        # Event loop
-        while not game.is_over():
-            event_id = game.read_event()
-            if event_id in {sg.WIN_CLOSED, "-QUIT-"}:
-                game.quit = True
-                break
-            game.process_event(event_id)
-
-        if not game.quit:
-            game.check_winner()
-
-    game.close()
+    app = QApplication(sys.argv)
+    game = HangmanGame()
+    game.show()
+    sys.exit(app.exec())
