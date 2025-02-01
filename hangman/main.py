@@ -5,11 +5,12 @@ from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QVBoxLay
 from PyQt6.QtGui import QIcon,QGuiApplication
 from HangmanDrawing import HangmanDrawing
 
+ # game class
 class HangmanGame(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Hangman на PyQt")
-        self.setGeometry(0, 20, 650, 720)
+        self.setGeometry(0, 20, 650, 720) # set window
         self.center_window()
         self.setWindowIcon(QIcon("hangman.jpg"))
         self.drawing_widget = HangmanDrawing()
@@ -30,7 +31,7 @@ class HangmanGame(QWidget):
         y = (screen_geometry.height() - window_geometry.height()) // 2 - 50
         self.move(x, y)
 
-    @staticmethod
+    @staticmethod       # load words from file
     def load_words(filename):
         try:
             with open(filename, "r", encoding="utf-8") as f:
@@ -40,7 +41,7 @@ class HangmanGame(QWidget):
             print("File not found , will be used default word list")
             return ["PYTHON", "HANGMAN", "DEVELOPER"]
 
-
+# initialize the user interface
     def init_ui(self):
         self.word_label = QLabel(self.get_display_word(), self)
         self.word_label.setStyleSheet("font-size: 40px;")
@@ -54,23 +55,23 @@ class HangmanGame(QWidget):
             self.letter_buttons[letter] = button
             grid_layout.addWidget(button, i // 6, i % 6)
 
-        # Кнопка для новой игры
+        # button to restart the game
         self.restart_button = QPushButton("New game", self)
         self.restart_button.setStyleSheet(
             "font-size: 20px; background-color: #4CAF50; color: white; border-radius: 10px;")
         self.restart_button.clicked.connect(self.new_game)
 
-        # Размещение виджетов
+        # create layout and add widgets
         layout = QVBoxLayout()
         layout.addWidget(self.drawing_widget)
         layout.addWidget(self.word_label)
         layout.addLayout(grid_layout)
         layout.addWidget(self.restart_button)
         self.setLayout(layout)
-
+# get the word to display
     def get_display_word(self):
         return " ".join([letter if letter in self.guessed_letters else "_" for letter in self.target_word])
-
+# method to guess the letter
     def guess_letter(self, letter):
         if letter in self.guessed_letters:
             return
@@ -90,8 +91,10 @@ class HangmanGame(QWidget):
         elif self.wrong_guesses >= self.max_wrong_guesses:
             QMessageBox.critical(self, "You Lost", f"The correct word is : {self.target_word}")
             self.new_game()
-
+# method to start a new game
     def new_game(self):
+        self.drawing_widget.clear()
+
         self.target_word = random.choice(self.word_list)
         self.guessed_letters = set()
         self.wrong_guesses = 0

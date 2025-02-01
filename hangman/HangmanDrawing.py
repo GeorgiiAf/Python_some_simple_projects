@@ -1,13 +1,13 @@
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtGui import QPainter, QPen
 from PyQt6.QtCore import Qt
-
+#  # class for drawing hangman
 class HangmanDrawing(QWidget):
     def __init__(self):
         super().__init__()
         self.wrong_guesses = 0
 
-    def paintEvent(self, event):
+    def paintEvent(self, event):        # create a drawing
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         pen = QPen(Qt.GlobalColor.black, 4)
@@ -30,10 +30,11 @@ class HangmanDrawing(QWidget):
             painter.drawLine(180, 180, 200, 220)  # Левая нога
         if self.wrong_guesses > 5:
             painter.drawLine(180, 180, 200, 220)  # Правая нога
-
+# update the drawing based on the number of wrong guesses
     def update_wrong_guesses(self, wrong_guesses):
         self.wrong_guesses = wrong_guesses
         self.update()
-
+# clear the drawing
     def clear(self):
-         self.update()
+        self.wrong_guesses = 0
+        self.update()
