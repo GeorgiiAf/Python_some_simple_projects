@@ -46,7 +46,7 @@ class HangmanGame(QWidget):
         self.word_label = QLabel(self.get_display_word(), self)
         self.word_label.setStyleSheet("font-size: 40px;")
 
-        # Сетка кнопок с буквами
+        # grid layout for the letter buttons
         self.letter_buttons = {}
         grid_layout = QGridLayout()
         for i, letter in enumerate(ascii_uppercase):
