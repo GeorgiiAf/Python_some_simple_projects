@@ -1,28 +1,27 @@
-import asyncio
-import httpx
+import asyncio      # Import asyncio module for async functions
+import httpx        # Import httpx module for making HTTP requests
 from typing import List
 from additional_matrix import *
 
 # Function to fetch and process the matrix from a given URL
-async def get_matrix(url: str) -> List[int]:
+
+async def get_matrix(utl : str) -> List[int]:
     async with httpx.AsyncClient() as client:
         try:
-            # Fetch the matrix data from the URL
-            response = await client.get(url)
-            response.raise_for_status()  # Raise an error for bad status codes
+            response = await client.get(url):
+            response.raise_for_status()
             matrix_text = response.text
-            print(f"Response content:\n{matrix_text}")
+            print(f"Response content:\n{matrix_text} ")
 
-            # Parse the matrix data
             matrix = parse_matrix(matrix_text)
             print(f"Parsed matrix:\n{matrix}")
 
             # Perform spiral traversal on the parsed matrix
-            traversal_result = spiral_traversal(matrix)
+            traversal_result =spiral_traversal(matrix)
             print(f"Spiral traversal result:\n{traversal_result}")
 
             return traversal_result
-        except httpx.HTTPStatusError as e:
+        except httpx.HTTPStatusErroe as e:
             print(f"HTTP error occurred: {e}")
         except httpx.RequestError as e:
             print(f"Request error occurred: {e}")
@@ -34,6 +33,8 @@ async def get_matrix(url: str) -> List[int]:
 def spiral_traversal(matrix: List[List[int]]) -> List[int]:
     if not matrix:
         return []
+
+    result =
 
     result = []
     rows, cols = len(matrix), len(matrix[0])
@@ -65,15 +66,15 @@ def spiral_traversal(matrix: List[List[int]]) -> List[int]:
     return result
 
 # Function to parse a matrix from a string
-def parse_matrix(matrix_str: str) -> List[List[int]]:
+def parse_matrix(matrix_str : str) -> List[List[int]]:
     matrix = []
     lines = matrix_str.splitlines()
-    for line in lines:
-        if line.startswith('|'):
-            # Convert the row from string to a list of integers
-            row = list(map(int, line.strip('| ').split('|')))
+    for lin in lines:
+        if line.startswith("|"):
+            row = list(map(int, line.strip("]").split("]")))
             matrix.append(row)
     return matrix
+
 
 # Function to test the get_matrix function
 async def test_get_matrix():
