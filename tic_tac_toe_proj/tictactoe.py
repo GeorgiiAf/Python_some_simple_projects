@@ -1,9 +1,9 @@
 import tkinter as tk , numpy as np
 from tkinter import *
+from tkinter import messagebox
 import random, sys ,sqlite3
 from datetime import datetime
 from config import *
-from database import create_database
 
 class TicTacToe:      # Class to implement the game
     def __init__(self, mode, difficulty, player1_name, player2_name):
@@ -63,7 +63,6 @@ class TicTacToe:      # Class to implement the game
             self.window.quit()
             sys.exit()
 
-
     # Logging the game result in the database
     # id , time ,winner / tie , points
 
@@ -78,8 +77,6 @@ class TicTacToe:      # Class to implement the game
         game_id = c.lastrowid
         conn.close()
         print(f"Game ID: {game_id}")
-
-
 
     # Reset the game to the initial state
     def reset_game(self):
@@ -202,16 +199,13 @@ class TicTacToe:      # Class to implement the game
         player = -1 if player == 'X' else 1
         #         Check if the given player has won the game.
 
-
         # Three in a row
         for i in range(3):
             if self.board_status[i][0] == self.board_status[i][1] == self.board_status[i][2] == player:
                 return True
             if self.board_status[0][i] == self.board_status[1][i] == self.board_status[2][i] == player:
                 return True
-
         # Diagonals
-
         if self.board_status[0][0] == self.board_status[1][1] == self.board_status[2][2] == player:
             return True
         if self.board_status[0][2] == self.board_status[1][1] == self.board_status[2][0] == player:
@@ -294,15 +288,15 @@ class TicTacToe:      # Class to implement the game
 
     def evaluate(self, board):
 
-  #  Evaluate the current state of the board.
-  #  Parameters:
-   # - board: 2D list representing the current state of the game board.
+      #  Evaluate the current state of the board.
+      #  Parameters:
+       # - board: 2D list representing the current state of the game board.
 
-    #Returns:
-    #- Integer: Evaluation score based on the current state.
-     # - 10: If 'O' (computer) wins.
-     # - -10: If 'X' (player) wins.
-     # - 0: If the game is not won by any player yet.
+        #Returns:
+        #- Integer: Evaluation score based on the current state.
+         # - 10: If 'O' (computer) wins.
+         # - -10: If 'X' (player) wins.
+         # - 0: If the game is not won by any player yet.
 
 
         # Check rows for a win
@@ -426,68 +420,3 @@ class TicTacToe:      # Class to implement the game
                 self.window.after(20, lambda: animate(next_x, next_y, target_x, target_y, steps-1))
         
         animate(start_pos[0], start_pos[1], end_pos[0], end_pos[1])
-
-
-
-
-def main():
-    create_database()    # Initialize the database
-    root = Tk()
-    root.title("Choose Mode")
-    window_width = 400
-    window_height = 300
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    position_top = int(screen_height / 2 - window_height / 2)
-    position_right = int(screen_width / 2 - window_width / 2)
-    root.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
-    Label(root, text="Choose Game Mode", font=("Helvetica", 18)).pack(pady=20)
-    Button(root, text="Player vs Player", font=("Helvetica", 14), command=lambda: enter_names("player", "easy", root)).pack(pady=10)
-    Button(root, text="Player vs Easy Computer", font=("Helvetica", 14), command=lambda: enter_names("computer", "easy", root)).pack(pady=10)
-    Button(root, text="Player vs Hard Computer", font=("Helvetica", 14), command=lambda: enter_names("computer", "hard", root)).pack(pady=10)
-    quit_button = Button(root, text="Quit", command=root.quit, font=("Helvetica", 14))
-    quit_button.pack(side=BOTTOM, pady=10)
-    root.mainloop()
-
-
-def enter_names(mode, difficulty, root):
-
-    #       Function to get player names and start the game.
-    root.withdraw()
-    name_window = Toplevel(root)
-    name_window.title("Enter Names")
-    window_width = 400
-    window_height = 300
-    screen_width = name_window.winfo_screenwidth()
-    screen_height = name_window.winfo_screenheight()
-    position_top = int(screen_height / 2 - window_height / 2)
-    position_right = int(screen_width / 2 - window_width / 2)
-    name_window.geometry(f'{window_width}x{window_height}+{position_right}+{position_top}')
-    Label(name_window, text="Enter Player 1 Name:", font=("Helvetica", 14)).pack(pady=10)
-    player1_entry = Entry(name_window, font=("Helvetica", 14))
-    player1_entry.pack(pady=10)
-    if mode == "player":
-        Label(name_window, text="Enter Player 2 Name:", font=("Helvetica", 14)).pack(pady=10)
-        player2_entry = Entry(name_window, font=("Helvetica", 14))
-        player2_entry.pack(pady=10)
-    else:
-        player2_entry = None
-
-    def start_game():
-        player1_name = player1_entry.get()
-        player2_name = player2_entry.get() if mode == "player" else None
-        name_window.destroy()
-        game_instance = TicTacToe(mode, difficulty, player1_name, player2_name)
-        game_instance.mainloop()
-
-    tk.Button(name_window, text="Start Game", command=start_game, font=("Helvetica", 14)).pack(pady=20)
-    tk.Button(name_window, text="Back", command=lambda: back_to_mode_selection(name_window, root),
-              font=("Helvetica", 14)).pack(pady=10)
-
-
-def back_to_mode_selection(name_window, root):
-    name_window.destroy()
-    root.deiconify()
-
-if __name__ == "__main__":
-    main()
