@@ -1,53 +1,18 @@
 import tkinter as tk , numpy as np
 from tkinter import *
-import random, sys, sqlite3
+import random, sys ,sqlite3
 from datetime import datetime
+from config import *
+from database import create_database
 
-# Constants for sizes and colors
-
-size_of_board = 600
-symbol_size = (size_of_board / 3 - size_of_board / 8) / 2
-symbol_thickness = 50
-symbol_X_color = '#EE4035'
-symbol_O_color = '#0492CF'
-Green_color = '#7BC043'
-
-
-
-def create_database():
-    """Создание базы данных с обработкой ошибок"""
-    try:
-        conn = sqlite3.connect('game_log.db')
-        c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS game_log (
-                    match_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    player1_name TEXT,
-                    player2_name TEXT,
-                    start_time TEXT,
-                    end_time TEXT,
-                    result TEXT,
-                    player1_points INTEGER,
-                    player2_points INTEGER)''')
-        conn.commit()
-        print("Database created/connected successfully")
-    except sqlite3.Error as e:
-        print(f"Database error: {e}")
-    finally:
-        if conn:
-            conn.close()
-
-class Tic_Tac_Toe:      # Class to implement the game
-      # Initialization Functions:
-
+class TicTacToe:      # Class to implement the game
     def __init__(self, mode, difficulty, player1_name, player2_name):
         self.mode = mode
         self.difficulty = difficulty
         self.player1_name = player1_name
         self.player2_name = player2_name if mode == "player" else "Mr. G (PC)"
         self.start_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
         # Setting up the game window using tkinter
-
         self.window = tk.Tk()
         self.window.title('Tic-Tac-Toe')
         #  creating canvas for drawing
@@ -101,7 +66,9 @@ class Tic_Tac_Toe:      # Class to implement the game
 
     # Logging the game result in the database
     # id , time ,winner / tie , points
-    def log_result(self, player1_name, player2_name, start_time, end_time, result, player1_points, player2_points):
+
+    @staticmethod
+    def log_result(player1_name, player2_name, start_time, end_time, result, player1_points, player2_points):
         conn = sqlite3.connect('game_log.db')
         c = conn.cursor()
         c.execute('''INSERT INTO game_log (player1_name, player2_name, start_time, end_time, result, player1_points, player2_points)
@@ -120,7 +87,7 @@ class Tic_Tac_Toe:      # Class to implement the game
         self.canvas.delete("all")  # Clear the canvas
         self.initialize_board()
         self.board_status = np.zeros(shape=(3, 3))
-        self.gameover = False
+        self.game_over = False
         self.reset_board = False
         self.tie = False
         self.X_wins = False
@@ -142,7 +109,7 @@ class Tic_Tac_Toe:      # Class to implement the game
         if self.mode == 'computer' and not self.first_turn_X:
             self.window.after(500, self.computer_move)
 
-    def draw_O(self, logical_position):
+    def draw_o(self, logical_position):
         # logical_position = grid value on the board
         # grid_position = actual pixel values of the center of the grid
 
@@ -153,7 +120,7 @@ class Tic_Tac_Toe:      # Class to implement the game
                                 outline=symbol_O_color)
         self.canvas.update()
 
-    def draw_X(self, logical_position):
+    def draw_x(self, logical_position):
         grid_position = self.convert_logical_to_grid_position(logical_position)
         self.canvas.create_line(grid_position[0] - symbol_size, grid_position[1] - symbol_size,
                                 grid_position[0] + symbol_size, grid_position[1] + symbol_size, width=symbol_thickness,
@@ -163,7 +130,7 @@ class Tic_Tac_Toe:      # Class to implement the game
                                 fill=symbol_X_color)
         self.canvas.update()
 
-    def display_gameover(self):     # Display game over results and log them in the database
+    def display_game_over(self):     # Display game over results and log them in the database
         end_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         if self.X_wins:
             self.X_score += 1
@@ -267,7 +234,7 @@ class Tic_Tac_Toe:      # Class to implement the game
 
         #         Handle click events on the game canvas.
 
-        if self.gameover:
+        if self.game_over:
             return
         if event.widget != self.canvas:
             return
@@ -276,7 +243,7 @@ class Tic_Tac_Toe:      # Class to implement the game
         if not self.reset_board:
             if self.player_X_turns:
                 if not self.is_grid_occupied(logical_position):
-                    self.draw_X(logical_position)
+                    self.draw_x(logical_position)
                     self.board_status[logical_position[0], logical_position[1]] = -1
                     self.player_X_turns = not self.player_X_turns
                     self.current_turn_label.config(
@@ -284,12 +251,12 @@ class Tic_Tac_Toe:      # Class to implement the game
                         bg=symbol_O_color
                     )
                     if self.is_gameover():
-                        self.display_gameover()
+                        self.display_game_over()
                     elif self.mode == 'computer' and not self.player_X_turns:
                         self.computer_move()
             else:
                 if self.mode == 'player' and not self.is_grid_occupied(logical_position):
-                    self.draw_O(logical_position)
+                    self.draw_o(logical_position)
                     self.board_status[logical_position[0], logical_position[1]] = 1
                     self.player_X_turns = not self.player_X_turns
                     self.current_turn_label.config(
@@ -297,7 +264,7 @@ class Tic_Tac_Toe:      # Class to implement the game
                         bg=symbol_X_color
                     )
                     if self.is_gameover():
-                        self.display_gameover()
+                        self.display_game_over()
         else:
             self.play_again()
             self.reset_board = False
@@ -307,7 +274,7 @@ class Tic_Tac_Toe:      # Class to implement the game
     def computer_move(self):
         #            Perform the computer's move.
 
-        if not self.gameover and not self.player_X_turns:
+        if not self.game_over and not self.player_X_turns:
             if self.difficulty == 'easy':
                 empty_cells = list(zip(*np.where(self.board_status == 0)))
                 if empty_cells:
@@ -315,7 +282,7 @@ class Tic_Tac_Toe:      # Class to implement the game
             else:
                 logical_position = self.find_best_move(self.board_status)
 
-            self.draw_O(logical_position)
+            self.draw_o(logical_position)
             self.board_status[logical_position[0], logical_position[1]] = 1
             self.player_X_turns = not self.player_X_turns
             self.current_turn_label.config(
@@ -323,7 +290,7 @@ class Tic_Tac_Toe:      # Class to implement the game
                 bg=symbol_X_color
             )
             if self.is_gameover():
-                self.display_gameover()
+                self.display_game_over()
 
     def evaluate(self, board):
 
@@ -510,7 +477,7 @@ def enter_names(mode, difficulty, root):
         player1_name = player1_entry.get()
         player2_name = player2_entry.get() if mode == "player" else None
         name_window.destroy()
-        game_instance = Tic_Tac_Toe(mode, difficulty, player1_name, player2_name)
+        game_instance = TicTacToe(mode, difficulty, player1_name, player2_name)
         game_instance.mainloop()
 
     tk.Button(name_window, text="Start Game", command=start_game, font=("Helvetica", 14)).pack(pady=20)
