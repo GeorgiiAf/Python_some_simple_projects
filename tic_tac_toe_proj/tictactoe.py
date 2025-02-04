@@ -22,7 +22,7 @@ class TicTacToe:      # Class to implement the game
             self.window, 
             text=f"Turn: {self.player1_name}", 
             font=("Helvetica", 14),
-            bg=symbol_X_color,  # Начальный цвет для X
+            bg=symbol_X_color,  #   start color for X
             fg='white'
         )
         self.current_turn_label.pack()
@@ -39,8 +39,8 @@ class TicTacToe:      # Class to implement the game
         self.create_quit_button(self.window)
         self.reset_game()
 
-        # Добавляем фрейм для счета
-        self.score_frame = tk.Frame(self.window)
+
+        self.score_frame = tk.Frame(self.window)  # Frame to display scores
         self.score_frame.pack(before=self.canvas)
         
         self.score_label = tk.Label(
@@ -109,7 +109,6 @@ class TicTacToe:      # Class to implement the game
     def draw_o(self, logical_position):
         # logical_position = grid value on the board
         # grid_position = actual pixel values of the center of the grid
-
         logical_position = np.array(logical_position)
         grid_position = self.convert_logical_to_grid_position(logical_position)
         self.canvas.create_oval(grid_position[0] - symbol_size, grid_position[1] - symbol_size,
@@ -151,7 +150,7 @@ class TicTacToe:      # Class to implement the game
         self.canvas.delete("all")
         self.canvas.create_text(size_of_board / 2, size_of_board / 3, font="cmr 60 bold", fill=color, text=text)
         score_text = 'Scores \n'
-        self.canvas.create_text(size_of_board / 2, 5 * size_of_board / 8, font="cmr 40 bold", fill=Green_color,
+        self.canvas.create_text(size_of_board / 2, 5 * size_of_board / 8, font="cmr 30 bold", fill=Green_color,
                                 text=score_text)
         score_text = f'{self.player1_name} (X) : ' + str(self.X_score) + '\n'
         score_text += f'{self.player2_name} (O): ' + str(self.O_score) + '\n'
@@ -162,19 +161,6 @@ class TicTacToe:      # Class to implement the game
         score_text = 'Click to play again \n'
         self.canvas.create_text(size_of_board / 2, 15 * size_of_board / 16, font="cmr 20 bold", fill="gray",
                                 text=score_text)
-        
-        # Добавляем статистику игры
-        win_percentage_x = (self.X_score / (self.X_score + self.O_score + self.tie_score)) * 100 if (self.X_score + self.O_score + self.tie_score) > 0 else 0
-        win_percentage_o = (self.O_score / (self.X_score + self.O_score + self.tie_score)) * 100 if (self.X_score + self.O_score + self.tie_score) > 0 else 0
-        
-        stats_text = f'\nWin Rate:\n{self.player1_name}: {win_percentage_x:.1f}%\n{self.player2_name}: {win_percentage_o:.1f}%'
-        self.canvas.create_text(
-            size_of_board / 2, 
-            7 * size_of_board / 8, 
-            font="cmr 20 bold", 
-            fill="gray",
-            text=stats_text
-        )
 
     # Logical Functions:
     # The modules required to carry out game logic
@@ -216,7 +202,7 @@ class TicTacToe:      # Class to implement the game
         r, c = np.where(self.board_status == 0)
         return len(r) == 0
 
-    def is_gameover(self):
+    def is_game_over(self):
         self.X_wins = self.is_winner('X')
         if not self.X_wins:
             self.O_wins = self.is_winner('O')
@@ -244,7 +230,7 @@ class TicTacToe:      # Class to implement the game
                         text=f"Turn: {self.player2_name}",
                         bg=symbol_O_color
                     )
-                    if self.is_gameover():
+                    if self.is_game_over():
                         self.display_game_over()
                     elif self.mode == 'computer' and not self.player_X_turns:
                         self.computer_move()
@@ -257,7 +243,7 @@ class TicTacToe:      # Class to implement the game
                         text=f"Turn: {self.player1_name}",
                         bg=symbol_X_color
                     )
-                    if self.is_gameover():
+                    if self.is_game_over():
                         self.display_game_over()
         else:
             self.play_again()
@@ -283,21 +269,31 @@ class TicTacToe:      # Class to implement the game
                 text=f"Turn: {self.player1_name}",
                 bg=symbol_X_color
             )
-            if self.is_gameover():
+            if self.is_game_over():
                 self.display_game_over()
 
+
+        """
+                Evaluate the current state of the board.
+                Parameters:
+                - board: 2D list representing the current state of the game board.
+                Returns:
+                - Integer: Evaluation score based on the current state.
+                  - 10: If 'O' (computer) wins.
+                  - -10: If 'X' (player) wins.
+                  - 0: If the game is not won by any player yet.
+        """
+
     def evaluate(self, board):
+        #  Evaluate the current state of the board.
+        #  Parameters:
+        # - board: 2D list representing the current state of the game board.
 
-      #  Evaluate the current state of the board.
-      #  Parameters:
-       # - board: 2D list representing the current state of the game board.
-
-        #Returns:
-        #- Integer: Evaluation score based on the current state.
-         # - 10: If 'O' (computer) wins.
-         # - -10: If 'X' (player) wins.
-         # - 0: If the game is not won by any player yet.
-
+        # Returns:
+        # - Integer: Evaluation score based on the current state.
+        # - 10: If 'O' (computer) wins.
+        # - -10: If 'X' (player) wins.
+        # - 0: If the game is not won by any player yet.
 
         # Check rows for a win
         for row in range(3):
@@ -327,10 +323,10 @@ class TicTacToe:      # Class to implement the game
             elif board[0][2] == -1:  # 'X' (player) wins
                 return -10
 
-        return 0  # No winner yet
+        return 0
 
-    def minimax(self, board, depth, is_maximizing):
-        """
+    """
+
     Implement the minimax algorithm for AI move calculation.
     Parameters:
     - board: 2D list representing the current state of the game board.
@@ -340,6 +336,7 @@ class TicTacToe:      # Class to implement the game
     Returns:
     - Integer: Best score for the current board state.
         """
+    def minimax(self, board, depth, is_maximizing):
 
         #          Implement the minimax algorithm for AI move calculation.
 
@@ -401,19 +398,16 @@ class TicTacToe:      # Class to implement the game
         self.score_label.config(
             text=f"{self.player1_name}: {self.X_score} | {self.player2_name}: {self.O_score} | Ties: {self.tie_score}"
         )
-
     def display_winning_line(self, start_pos, end_pos):
-        """Анимация победной линии"""
+        """animate the winning line"""
         line = self.canvas.create_line(
             start_pos[0], start_pos[1],
-            start_pos[0], start_pos[1],  # Начальная точка совпадает
+            start_pos[0], start_pos[1],
             width=10,
             fill=Green_color
         )
-        
         def animate(current_x, current_y, target_x, target_y, steps=30):
             if steps > 0:
-                # Вычисляем следующую позицию
                 next_x = current_x + (target_x - current_x) / steps
                 next_y = current_y + (target_y - current_y) / steps
                 self.canvas.coords(line, start_pos[0], start_pos[1], next_x, next_y)

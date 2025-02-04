@@ -1,5 +1,5 @@
 # Constants for sizes and colors
-size_of_board = 500
+size_of_board = 560
 symbol_size = (size_of_board / 3 - size_of_board / 8) / 2
 symbol_thickness = 10
 symbol_X_color = '#EE4035'

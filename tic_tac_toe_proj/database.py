@@ -1,6 +1,7 @@
 import sqlite3
+
 def create_database():
-    """Создание базы данных с обработкой ошибок"""
+    conn = None
     try:
         conn = sqlite3.connect('game_log.db')
         c = conn.cursor()
